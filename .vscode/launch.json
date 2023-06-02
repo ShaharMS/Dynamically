@@ -1,0 +1,30 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "Build + Debug",
+			"type": "lime",
+			"request": "launch"
+		},
+		{
+			"name": "Debug",
+			"type": "lime",
+			"request": "launch",
+			"preLaunchTask": null
+		},
+		{
+			"name": "Macro",
+			"type": "haxe-eval",
+			"request": "launch"
+		},
+		{
+			"name": "HashLink",
+			"type": "hl",
+			"hl": "${workspaceFolder}/Export/hl/bin/EZWorksheet.exe",
+			"request": "launch",
+			"cwd": "${workspaceFolder}/Export/hl/bin",
+			"hxml": "${workspaceFolder}/Export/hl/haxe/debug.hxml",
+			"program": "${workspaceFolder}/Export/hl/obj/ApplicationMain.hl",
+		}
+	]
+}
