@@ -44,12 +44,6 @@ import sys.FileSystem;
 
 			rootPath = Reflect.field (config, "rootPath");
 
-			if(!StringTools.endsWith (rootPath, "/")) {
-
-				rootPath += "/";
-
-			}
-
 		}
 
 		if (rootPath == null) {

@@ -4,7 +4,7 @@ import vision.ds.Point2D;
 import vision.ds.Color;
 import openfl.display.Sprite;
 
-class EllipseBase extends Sprite {
+class EllipseBase extends Sprite implements IDrawable {
 
     public static var all:Array<EllipseBase> = [];
 
@@ -25,15 +25,21 @@ class EllipseBase extends Sprite {
 
         all.push(this);
 
+		focal1.onMoved.push((_, _) -> draw());
+		focal2.onMoved.push((_, _) -> draw());
+
         ringGraphic = new Sprite();
-        var info = convertFocalsToEllipse(focal1.x, focal1.y, focal2.x, focal2.y, radius);
-        trace(info);
-		ringGraphic.graphics.lineStyle(2, Color.JET_BLACK);
-        ringGraphic.graphics.drawEllipse(info.x, info.y, info.width, info.height);
+		draw();
 	}
 
 	public var ringGraphic:Sprite;
 
+	public function draw() {
+		ringGraphic.graphics.clear();
+		var info = convertFocalsToEllipse(focal1.x, focal1.y, focal2.x, focal2.y, radius);
+		ringGraphic.graphics.lineStyle(2, Color.JET_BLACK);
+		ringGraphic.graphics.drawEllipse(info.x, info.y, info.width, info.height);
+	}
 
 	function convertFocalsToEllipse(focus1X:Float, focus1Y:Float, focus2X:Float, focus2Y:Float, distanceSum:Float):{width:Float, height:Float, x:Float, y:Float} {
 		var distance:Float = Math.sqrt(Math.pow(focus2X - focus1X, 2) + Math.pow(focus2Y - focus1Y, 2));
