@@ -891,7 +891,7 @@ ApplicationMain.main = function() {
 ApplicationMain.create = function(config) {
 	var app = new openfl_display_Application();
 	ManifestResources.init(config);
-	app.meta.h["build"] = "2";
+	app.meta.h["build"] = "3";
 	app.meta.h["company"] = "Company Name";
 	app.meta.h["file"] = "LittleDemo";
 	app.meta.h["name"] = "Dynamically";
@@ -1374,6 +1374,7 @@ lime_utils_ObjectPool.prototype = {
 		if(!this.__pool.exists(object)) {
 			this.__pool.set(object,false);
 			this.clean(object);
+			this.__pool.set(object,false);
 			if(this.__inactiveObject0 == null) {
 				this.__inactiveObject0 = object;
 			} else if(this.__inactiveObject1 == null) {
@@ -1416,6 +1417,7 @@ lime_utils_ObjectPool.prototype = {
 					this.__inactiveObject1 = this.__inactiveObjectList.pop();
 				}
 			}
+			this.__pool.set(object1,true);
 			this.inactiveObjects--;
 			this.activeObjects++;
 			object = object1;
@@ -1429,9 +1431,15 @@ lime_utils_ObjectPool.prototype = {
 		return object;
 	}
 	,release: function(object) {
+		if(!this.__pool.exists(object)) {
+			lime_utils_Log.error("Object is not a member of the pool",{ fileName : "lime/utils/ObjectPool.hx", lineNumber : 102, className : "lime.utils.ObjectPool", methodName : "release"});
+		} else if(!this.__pool.get(object)) {
+			lime_utils_Log.error("Object has already been released",{ fileName : "lime/utils/ObjectPool.hx", lineNumber : 106, className : "lime.utils.ObjectPool", methodName : "release"});
+		}
 		this.activeObjects--;
 		if(this.__size == null || this.activeObjects + this.inactiveObjects < this.__size) {
 			this.clean(object);
+			this.__pool.set(object,false);
 			if(this.__inactiveObject0 == null) {
 				this.__inactiveObject0 = object;
 			} else if(this.__inactiveObject1 == null) {
@@ -1461,6 +1469,7 @@ lime_utils_ObjectPool.prototype = {
 		}
 	}
 	,__addInactive: function(object) {
+		this.__pool.set(object,false);
 		if(this.__inactiveObject0 == null) {
 			this.__inactiveObject0 = object;
 		} else if(this.__inactiveObject1 == null) {
@@ -1487,6 +1496,7 @@ lime_utils_ObjectPool.prototype = {
 				this.__inactiveObject1 = this.__inactiveObjectList.pop();
 			}
 		}
+		this.__pool.set(object,true);
 		this.inactiveObjects--;
 		this.activeObjects++;
 		return object;
@@ -3325,16 +3335,10 @@ openfl_display_Sprite.prototype = $extend(openfl_display_DisplayObjectContainer.
 });
 var Main = function() {
 	openfl_display_Sprite.call(this);
-	var _g = new haxe_ds_StringMap();
-	var value = new vision_ds_Point2D(50,50);
-	_g.h["A"] = value;
-	var value = new vision_ds_Point2D(150,50);
-	_g.h["B"] = value;
-	var value = new vision_ds_Point2D(150,150);
-	_g.h["C"] = value;
-	var value = new vision_ds_Point2D(50,150);
-	_g.h["D"] = value;
-	this.addChild(geometry_Drawer.drawShape(geometry_basic_Shape._new(_g)));
+	var j = new geometry_basic_Joint(30,30,"A").connect(new geometry_basic_Joint(130,30,"B")).connect(new geometry_basic_Joint(120,60,"C"));
+	var c = new geometry_basic_EllipseBase(new geometry_basic_Joint(250,250,"D"),new geometry_basic_Joint(350,250,"E"),150);
+	var c2 = new geometry_basic_EllipseBase(new geometry_basic_Joint(400,400,"F"),new geometry_basic_Joint(400,400,"F"),100);
+	geometry_Drawer.draw();
 };
 $hxClasses["Main"] = Main;
 Main.__name__ = "Main";
@@ -3875,136 +3879,122 @@ UInt.toFloat = function(this1) {
 var geometry_Drawer = function() { };
 $hxClasses["geometry.Drawer"] = geometry_Drawer;
 geometry_Drawer.__name__ = "geometry.Drawer";
-geometry_Drawer.drawShape = function(shape) {
-	var sp = new openfl_display_Sprite();
-	var s = new openfl_display_Shape();
-	var g = s.get_graphics();
-	g.lineStyle(2,-15856112);
-	var _g = [];
-	var h = shape.points.h;
-	var x_h = h;
-	var x_keys = Object.keys(h);
-	var x_length = x_keys.length;
-	var x_current = 0;
-	while(x_current < x_length) {
-		var x = x_keys[x_current++];
-		_g.push(x);
-	}
-	var ks = _g;
-	ks.sort(function(a,b) {
-		return HxOverrides.cca(a,0) - HxOverrides.cca(b,0);
-	});
-	var first = true;
+geometry_Drawer.draw = function() {
+	var conns_h = Object.create(null);
 	var _g = 0;
-	while(_g < ks.length) {
-		var k = ks[_g];
+	var _g1 = geometry_basic_Joint.all;
+	while(_g < _g1.length) {
+		var j = _g1[_g];
 		++_g;
-		var p = shape.points.h[k];
-		if(first) {
-			g.moveTo(p.x,p.y);
-			first = false;
-		} else {
-			g.lineTo(p.x,p.y);
+		var _g2 = 0;
+		var _g3 = j.connections;
+		while(_g2 < _g3.length) {
+			var c = _g3[_g2];
+			++_g2;
+			if(Object.prototype.hasOwnProperty.call(conns_h,c.from.id + c.to.id) || Object.prototype.hasOwnProperty.call(conns_h,c.to.id + c.from.id)) {
+				continue;
+			}
+			conns_h[c.from.id + c.to.id] = c;
 		}
 	}
-	g.lineTo(shape.points.h[ks[0]].x,shape.points.h[ks[0]].y);
+	var h = conns_h;
+	var _g_h = h;
+	var _g_keys = Object.keys(h);
+	var _g_length = _g_keys.length;
+	var _g_current = 0;
+	while(_g_current < _g_length) {
+		var key = _g_keys[_g_current++];
+		var _g_key = key;
+		var _g_value = _g_h[key];
+		var k = _g_key;
+		var v = _g_value;
+		var g = v.get_graphics();
+		g.lineStyle(2,-15856112);
+		g.moveTo(v.from.get_x(),v.from.get_y());
+		g.lineTo(v.to.get_x(),v.to.get_y());
+		openfl_Lib.get_current().addChild(v);
+	}
 	var _g = 0;
-	while(_g < ks.length) {
-		var k = ks[_g];
+	var _g1 = geometry_basic_EllipseBase.all;
+	while(_g < _g1.length) {
+		var e = _g1[_g];
 		++_g;
-		var p = shape.points.h[k];
+		openfl_Lib.get_current().addChild(e.ringGraphic);
+	}
+	var _g = 0;
+	var _g1 = geometry_basic_Joint.all;
+	while(_g < _g1.length) {
+		var j = _g1[_g];
+		++_g;
+		var g = j.get_graphics();
 		g.lineStyle(2,-15856112);
 		g.beginFill(-1);
-		g.drawCircle(p.x,p.y,7);
+		g.drawCircle(0,0,7);
 		g.endFill();
-	}
-	var _g = 0;
-	while(_g < ks.length) {
-		var k = ks[_g];
-		++_g;
-		var p = shape.points.h[k];
-		geometry_Drawer.addText(sp,k,p);
-	}
-	sp.addChild(s);
-	return sp;
-};
-geometry_Drawer.addText = function(sp,s,p) {
-	var tf = new openfl_text_TextField();
-	tf.set_defaultTextFormat(new openfl_text_TextFormat(null,20));
-	tf.set_text(s);
-	var isAfterMidX = p.x > sp.get_width() / 2 ? 0.5 : -1.5;
-	var isAfterMidY = p.y > sp.get_height() / 2 ? 0 : -1;
-	tf.set_x(p.x + tf.get_textWidth() * isAfterMidX);
-	tf.set_y(p.y + tf.get_textHeight() * isAfterMidY);
-	sp.addChild(tf);
-};
-var geometry_basic__$Shape_ShapeBase = function(points) {
-	this.points = points;
-};
-$hxClasses["geometry.basic._Shape.ShapeBase"] = geometry_basic__$Shape_ShapeBase;
-geometry_basic__$Shape_ShapeBase.__name__ = "geometry.basic._Shape.ShapeBase";
-geometry_basic__$Shape_ShapeBase.prototype = {
-	getAngle: function(ang) {
-		var pointA = this.points.h[ang.charAt(0)];
-		var pointB = this.points.h[ang.charAt(1)];
-		var pointC = this.points.h[ang.charAt(2)];
-		var deltaX1 = pointA.x - pointB.x;
-		var deltaY1 = pointA.y - pointB.y;
-		var deltaX2 = pointC.x - pointB.x;
-		var deltaY2 = pointC.y - pointB.y;
-		var dotProduct = deltaX1 * deltaX2 + deltaY1 * deltaY2;
-		var magnitude1 = Math.sqrt(Math.pow(deltaX1,2) + Math.pow(deltaY1,2));
-		var magnitude2 = Math.sqrt(Math.pow(deltaX2,2) + Math.pow(deltaY2,2));
-		var angle = Math.acos(dotProduct / (magnitude1 * magnitude2));
-		var angleDegrees = angle * (180 / Math.PI);
-		return angleDegrees;
-	}
-	,getSide: function(s) {
-		var _this = this.points.h[s.charAt(0)];
-		var point = this.points.h[s.charAt(1)];
-		var x = point.x - _this.x;
-		var y = point.y - _this.y;
-		return Math.sqrt(x * x + y * y);
-	}
-	,pushPoint: function(point,letter) {
-		var freeLetter = letter;
-		if(freeLetter == null) {
-			var currentLetterCode = HxOverrides.cca("A",0);
-			while(true) {
-				var this1 = this.points;
-				var key = String.fromCodePoint(currentLetterCode);
-				if(!Object.prototype.hasOwnProperty.call(this1.h,key)) {
-					break;
-				}
-				++currentLetterCode;
-			}
-			freeLetter = String.fromCodePoint(currentLetterCode);
-		}
-		this.points.h[freeLetter] = point;
-		return point;
-	}
-	,__class__: geometry_basic__$Shape_ShapeBase
-};
-var geometry_basic_Shape = {};
-geometry_basic_Shape._new = function(points) {
-	return new geometry_basic__$Shape_ShapeBase(points);
-};
-geometry_basic_Shape.getInfo = function(this1,s) {
-	if(s.length == 3) {
-		return this1.getAngle(s);
-	}
-	if(s.length == 2) {
-		return this1.getSide(s);
-	} else {
-		return null;
+		openfl_Lib.get_current().addChild(j);
 	}
 };
-geometry_basic_Shape.getPoint = function(this1,letter) {
-	return this1.points.h[letter];
+var geometry_basic_Connection = function(f,t,text) {
+	openfl_display_Sprite.call(this);
+	this.from = f;
+	this.to = t;
+	this.text = text;
 };
-geometry_basic_Shape.setPoint = function(this1,letter,p) {
-	return this1.pushPoint(p,letter);
+$hxClasses["geometry.basic.Connection"] = geometry_basic_Connection;
+geometry_basic_Connection.__name__ = "geometry.basic.Connection";
+geometry_basic_Connection.__super__ = openfl_display_Sprite;
+geometry_basic_Connection.prototype = $extend(openfl_display_Sprite.prototype,{
+	__class__: geometry_basic_Connection
+});
+var geometry_basic_EllipseBase = function(f1,f2,radius) {
+	this.onOutlineJoints = [];
+	openfl_display_Sprite.call(this);
+	this.focal1 = f1;
+	this.focal2 = f2;
+	this.radius = radius;
+	geometry_basic_EllipseBase.all.push(this);
+	this.ringGraphic = new openfl_display_Sprite();
+	var info = this.convertFocalsToEllipse(this.focal1.get_x(),this.focal1.get_y(),this.focal2.get_x(),this.focal2.get_y(),radius);
+	haxe_Log.trace(info,{ fileName : "Source/geometry/basic/EllipseBase.hx", lineNumber : 30, className : "geometry.basic.EllipseBase", methodName : "new"});
+	this.ringGraphic.get_graphics().lineStyle(2,-15856112);
+	this.ringGraphic.get_graphics().drawEllipse(info.x,info.y,info.width,info.height);
 };
+$hxClasses["geometry.basic.EllipseBase"] = geometry_basic_EllipseBase;
+geometry_basic_EllipseBase.__name__ = "geometry.basic.EllipseBase";
+geometry_basic_EllipseBase.__super__ = openfl_display_Sprite;
+geometry_basic_EllipseBase.prototype = $extend(openfl_display_Sprite.prototype,{
+	convertFocalsToEllipse: function(focus1X,focus1Y,focus2X,focus2Y,distanceSum) {
+		var distance = Math.sqrt(Math.pow(focus2X - focus1X,2) + Math.pow(focus2Y - focus1Y,2));
+		var semiMajorAxis = distanceSum / 2;
+		var semiMinorAxis = Math.sqrt(Math.pow(semiMajorAxis,2) - Math.pow(distance / 2,2));
+		var width = 2 * semiMajorAxis;
+		var height = 2 * semiMinorAxis;
+		var x = (focus1X + focus2X) / 2 - width / 2;
+		var y = (focus1Y + focus2Y) / 2 - height / 2;
+		return { width : width, height : height, x : x, y : y};
+	}
+	,__class__: geometry_basic_EllipseBase
+});
+var geometry_basic_Joint = function(x,y,letter) {
+	this.connections = [];
+	this.id = "";
+	openfl_display_Sprite.call(this);
+	this.set_x(x);
+	this.set_y(y);
+	this.id = letter;
+	geometry_basic_Joint.all.push(this);
+};
+$hxClasses["geometry.basic.Joint"] = geometry_basic_Joint;
+geometry_basic_Joint.__name__ = "geometry.basic.Joint";
+geometry_basic_Joint.__super__ = openfl_display_Sprite;
+geometry_basic_Joint.prototype = $extend(openfl_display_Sprite.prototype,{
+	connect: function(joint,connectionText) {
+		this.connections.push(new geometry_basic_Connection(this,joint,connectionText));
+		joint.connections.push(new geometry_basic_Connection(joint,this,connectionText));
+		return this;
+	}
+	,__class__: geometry_basic_Joint
+});
 var haxe_StackItem = $hxEnums["haxe.StackItem"] = { __ename__:"haxe.StackItem",__constructs__:null
 	,CFunction: {_hx_name:"CFunction",_hx_index:0,__enum__:"haxe.StackItem",toString:$estr}
 	,Module: ($_=function(m) { return {_hx_index:1,m:m,__enum__:"haxe.StackItem",toString:$estr}; },$_._hx_name="Module",$_.__params__ = ["m"],$_)
@@ -22900,7 +22890,7 @@ var lime_utils_AssetCache = function() {
 	this.audio = new haxe_ds_StringMap();
 	this.font = new haxe_ds_StringMap();
 	this.image = new haxe_ds_StringMap();
-	this.version = 751385;
+	this.version = 286256;
 };
 $hxClasses["lime.utils.AssetCache"] = lime_utils_AssetCache;
 lime_utils_AssetCache.__name__ = "lime.utils.AssetCache";
@@ -63207,9 +63197,6 @@ openfl_events_UncaughtErrorEvents.prototype = $extend(openfl_events_EventDispatc
 			useCapture = false;
 		}
 		openfl_events_EventDispatcher.prototype.addEventListener.call(this,type,listener,useCapture,priority,useWeakReference);
-		if(Object.prototype.hasOwnProperty.call(this.__eventMap.h,"uncaughtError")) {
-			this.__enabled = true;
-		}
 	}
 	,removeEventListener: function(type,listener,useCapture) {
 		if(useCapture == null) {
@@ -73495,6 +73482,115 @@ openfl_utils__$internal_TouchData.prototype = {
 	}
 	,__class__: openfl_utils__$internal_TouchData
 };
+var vision_algorithms_GaussJordan = function() { };
+$hxClasses["vision.algorithms.GaussJordan"] = vision_algorithms_GaussJordan;
+vision_algorithms_GaussJordan.__name__ = "vision.algorithms.GaussJordan";
+vision_algorithms_GaussJordan.invert = function(matrix) {
+	var n = matrix.height;
+	var identity = vision_algorithms_GaussJordan.createIdentityMatrix(n);
+	var augmentedMatrix = vision_algorithms_GaussJordan.augmentMatrix(vision_ds_Matrix2D.to_array_array_float(matrix),vision_ds_Matrix2D.to_array_array_float(identity));
+	var _g = 0;
+	var _g1 = n;
+	while(_g < _g1) {
+		var i = _g++;
+		var pivotRow = i;
+		var _g2 = i + 1;
+		var _g3 = n;
+		while(_g2 < _g3) {
+			var j = _g2++;
+			if(Math.abs(augmentedMatrix.inner[i * augmentedMatrix.height + j]) > Math.abs(augmentedMatrix.inner[i * augmentedMatrix.height + pivotRow])) {
+				pivotRow = j;
+			}
+		}
+		if(Math.abs(augmentedMatrix.inner[i * augmentedMatrix.height + pivotRow]) < 1e-12) {
+			throw haxe_Exception.thrown("Matrix is not invertible");
+		}
+		if(pivotRow != i) {
+			vision_algorithms_GaussJordan.swapRows(vision_ds_Matrix2D.to_array_array_float(augmentedMatrix),i,pivotRow);
+		}
+		var pivot = augmentedMatrix.inner[i * augmentedMatrix.height + i];
+		var _g4 = 0;
+		var _g5 = 2 * n;
+		while(_g4 < _g5) {
+			var j1 = _g4++;
+			augmentedMatrix.inner[i + j1 * augmentedMatrix.height] = pivot;
+		}
+		var _g6 = 0;
+		var _g7 = n;
+		while(_g6 < _g7) {
+			var j2 = _g6++;
+			if(j2 != i) {
+				var factor = augmentedMatrix.inner[i * augmentedMatrix.height + j2];
+				var _g8 = 0;
+				var _g9 = 2 * n;
+				while(_g8 < _g9) {
+					var k = _g8++;
+					augmentedMatrix.inner[j2 + k * augmentedMatrix.height] = factor * augmentedMatrix.inner[k * augmentedMatrix.height + i];
+				}
+			}
+		}
+	}
+	var _g = [];
+	var _g1 = n + 1;
+	var _g2 = 2 * n;
+	while(_g1 < _g2) {
+		var l = _g1++;
+		_g.push(l);
+	}
+	var invertedMatrix = vision_algorithms_GaussJordan.extractMatrix(augmentedMatrix,n,_g);
+	return invertedMatrix;
+};
+vision_algorithms_GaussJordan.createIdentityMatrix = function(size) {
+	var matrix = [];
+	var _g = 0;
+	var _g1 = size;
+	while(_g < _g1) {
+		var i = _g++;
+		matrix.push([]);
+		var _g2 = 0;
+		var _g3 = size;
+		while(_g2 < _g3) {
+			var j = _g2++;
+			if(i == j) {
+				matrix[i].push(1.0);
+			} else {
+				matrix[i].push(0.0);
+			}
+		}
+	}
+	return vision_ds_Matrix2D.from_array_array_float(matrix);
+};
+vision_algorithms_GaussJordan.augmentMatrix = function(matrix,augmentation) {
+	var augmentedMatrix = [];
+	var _g = 0;
+	var _g1 = matrix.length;
+	while(_g < _g1) {
+		var i = _g++;
+		augmentedMatrix.push(matrix[i].concat(augmentation[i]));
+	}
+	return vision_ds_Matrix2D.from_array_array_float(augmentedMatrix);
+};
+vision_algorithms_GaussJordan.swapRows = function(matrix,row1,row2) {
+	var temp = matrix[row1];
+	matrix[row1] = matrix[row2];
+	matrix[row2] = temp;
+};
+vision_algorithms_GaussJordan.extractMatrix = function(matrix,rows,columns) {
+	var extractedMatrix = [];
+	var _g = 0;
+	var _g1 = rows;
+	while(_g < _g1) {
+		var i = _g++;
+		extractedMatrix.push([]);
+		var _g2 = 0;
+		while(_g2 < columns.length) {
+			var j = columns[_g2];
+			++_g2;
+			extractedMatrix[i].push(matrix.inner[j * matrix.height + i]);
+		}
+	}
+	return vision_ds_Matrix2D.from_array_array_float(extractedMatrix);
+};
 var vision_algorithms_Radix = function() { };
 $hxClasses["vision.algorithms.Radix"] = vision_algorithms_Radix;
 vision_algorithms_Radix.__name__ = "vision.algorithms.Radix";
@@ -73555,6 +73651,109 @@ vision_algorithms_Radix.sort = function(array) {
 		exp *= 10;
 	}
 	return array;
+};
+var vision_ds_Array2D = function(width,height,fillWith) {
+	this.width = width;
+	this.height = height;
+	this.inner = [];
+	this.inner.length = width * height;
+	if(fillWith != null) {
+		var _g = 0;
+		var _g1 = this.inner.length;
+		while(_g < _g1) {
+			var i = _g++;
+			this.inner[i] = fillWith;
+		}
+	}
+};
+$hxClasses["vision.ds.Array2D"] = vision_ds_Array2D;
+vision_ds_Array2D.__name__ = "vision.ds.Array2D";
+vision_ds_Array2D.prototype = {
+	get: function(x,y) {
+		return this.inner[y * this.height + x];
+	}
+	,set: function(x,y,val) {
+		return this.inner[x + y * this.height] = val;
+	}
+	,row: function(y) {
+		var _g = [];
+		var _g1 = y * this.width;
+		var _g2 = y * this.width + this.width;
+		while(_g1 < _g2) {
+			var i = _g1++;
+			_g.push(this.inner[i]);
+		}
+		return _g;
+	}
+	,column: function(x) {
+		var _g = [];
+		var _g1 = 0;
+		var _g2 = this.height;
+		while(_g1 < _g2) {
+			var i = _g1++;
+			_g.push(this.inner[i * this.width + x]);
+		}
+		return _g;
+	}
+	,iterator: function() {
+		return new haxe_iterators_ArrayIterator(this.inner);
+	}
+	,fill: function(value) {
+		var _g = 0;
+		var _g1 = this.inner.length;
+		while(_g < _g1) {
+			var i = _g++;
+			this.inner[i] = value;
+		}
+		return this;
+	}
+	,clone: function() {
+		var arr = new vision_ds_Array2D(this.width,this.height);
+		arr.inner = this.inner.slice();
+		return arr;
+	}
+	,toString: function() {
+		var str = "\n[[";
+		var counter = 0;
+		var _g = 0;
+		var _g1 = this.inner;
+		while(_g < _g1.length) {
+			var item = _g1[_g];
+			++_g;
+			if(counter < this.width) {
+				var add = ", " + Std.string(item);
+				if(counter == 0) {
+					add = HxOverrides.substr(add,2,null);
+				}
+				str += add;
+				++counter;
+			} else {
+				counter = 0;
+				str += "],\n [";
+				var add1 = "" + Std.string(item);
+				str += add1;
+				++counter;
+			}
+		}
+		return str.substring(0,str.length) + "]]";
+	}
+	,get_length: function() {
+		return this.inner.length;
+	}
+	,set_length: function(value) {
+		this.inner.length = value;
+		return value;
+	}
+	,set_width: function(value) {
+		this.inner.length = value * this.height;
+		return this.width = value;
+	}
+	,set_height: function(value) {
+		this.inner.length = this.width * value;
+		return this.height = value;
+	}
+	,__class__: vision_ds_Array2D
+	,__properties__: {set_length:"set_length",get_length:"get_length",set_height:"set_height",set_width:"set_width"}
 };
 var vision_ds_Color = {};
 vision_ds_Color.__properties__ = {set_lightness:"set_lightness",get_lightness:"get_lightness",set_brightness:"set_brightness",get_brightness:"get_brightness",set_saturation:"set_saturation",get_saturation:"get_saturation",set_hue:"set_hue",get_hue:"get_hue",set_rgb:"set_rgb",get_rgb:"get_rgb",set_black:"set_black",get_black:"get_black",set_yellow:"set_yellow",get_yellow:"get_yellow",set_magenta:"set_magenta",get_magenta:"get_magenta",set_cyan:"set_cyan",get_cyan:"get_cyan",set_alphaFloat:"set_alphaFloat",get_alphaFloat:"get_alphaFloat",set_greenFloat:"set_greenFloat",get_greenFloat:"get_greenFloat",set_blueFloat:"set_blueFloat",get_blueFloat:"get_blueFloat",set_redFloat:"set_redFloat",get_redFloat:"get_redFloat",set_alpha:"set_alpha",get_alpha:"get_alpha",set_green:"set_green",get_green:"get_green",set_blue:"set_blue",get_blue:"get_blue",set_red:"set_red",get_red:"get_red"};
@@ -75841,6 +76040,58 @@ vision_ds_Color.color_bitwise_unsigned_right_shift_int = function(lhs,rhs) {
 vision_ds_Color.int_bitwise_unsigned_right_shift_color = function(lhs,rhs) {
 	return lhs >>> rhs;
 };
+var vision_ds__$IntPoint2D_Impl = function(x,y) {
+	this.x = x;
+	this.y = y;
+};
+$hxClasses["vision.ds._IntPoint2D.Impl"] = vision_ds__$IntPoint2D_Impl;
+vision_ds__$IntPoint2D_Impl.__name__ = "vision.ds._IntPoint2D.Impl";
+vision_ds__$IntPoint2D_Impl.prototype = {
+	__class__: vision_ds__$IntPoint2D_Impl
+};
+var vision_ds_IntPoint2D = {};
+vision_ds_IntPoint2D.__properties__ = {set_y:"set_y",get_y:"get_y",set_x:"set_x",get_x:"get_x"};
+vision_ds_IntPoint2D.get_y = function(this1) {
+	return this1.y;
+};
+vision_ds_IntPoint2D.get_x = function(this1) {
+	return this1.x;
+};
+vision_ds_IntPoint2D.set_y = function(this1,y) {
+	this1.y = y;
+	return y;
+};
+vision_ds_IntPoint2D.set_x = function(this1,x) {
+	this1.x = x;
+	return x;
+};
+vision_ds_IntPoint2D.toPoint2D = function(this1) {
+	return new vision_ds_Point2D(this1.x,this1.y);
+};
+vision_ds_IntPoint2D.fromPoint2D = function(p) {
+	return new vision_ds__$IntPoint2D_Impl(p.x | 0,p.y | 0);
+};
+vision_ds_IntPoint2D.toString = function(this1) {
+	return "(" + this1.x + ", " + this1.y + ")";
+};
+vision_ds_IntPoint2D.copy = function(this1) {
+	return new vision_ds__$IntPoint2D_Impl(this1.x,this1.y);
+};
+vision_ds_IntPoint2D.distanceTo = function(this1,point) {
+	return Math.sqrt(Math.pow(this1.x - point.x,2) + Math.pow(this1.y - point.y,2));
+};
+vision_ds_IntPoint2D.degreesTo = function(this1,point) {
+	var point1 = js_Boot.__cast(this1 , vision_ds__$IntPoint2D_Impl);
+	var x = point.x - point1.x;
+	var y = point.y - point1.y;
+	return Math.atan2(x,y) * 180 / Math.PI;
+};
+vision_ds_IntPoint2D.radiansTo = function(this1,point) {
+	var point1 = js_Boot.__cast(this1 , vision_ds__$IntPoint2D_Impl);
+	var x = point.x - point1.x;
+	var y = point.y - point1.y;
+	return Math.atan2(x,y) * 180 / Math.PI;
+};
 var vision_ds_Line2D = function(start,end) {
 	this.end = new vision_ds_Point2D(0,0);
 	this.start = new vision_ds_Point2D(0,0);
@@ -76005,6 +76256,521 @@ vision_ds_Line2D.prototype = {
 	,__class__: vision_ds_Line2D
 	,__properties__: {set_middle:"set_middle",get_middle:"get_middle",set_end:"set_end",set_start:"set_start",get_length:"get_length"}
 };
+var vision_ds_Matrix2D = {};
+vision_ds_Matrix2D.__properties__ = {set_columns:"set_columns",get_columns:"get_columns",set_rows:"set_rows",get_rows:"get_rows",set_underlying:"set_underlying",get_underlying:"get_underlying"};
+vision_ds_Matrix2D.get_underlying = function(this1) {
+	return this1;
+};
+vision_ds_Matrix2D.set_underlying = function(this1,arr2d) {
+	this1 = arr2d;
+	return this1;
+};
+vision_ds_Matrix2D.get_rows = function(this1) {
+	return this1.width;
+};
+vision_ds_Matrix2D.set_rows = function(this1,amount) {
+	this1.inner.length = amount * this1.height;
+	return this1.width = amount;
+};
+vision_ds_Matrix2D.get_columns = function(this1) {
+	return this1.height;
+};
+vision_ds_Matrix2D.set_columns = function(this1,amount) {
+	this1.inner.length = this1.width * amount;
+	return this1.height = amount;
+};
+vision_ds_Matrix2D._new = function(rows,columns) {
+	return new vision_ds_Array2D(rows,columns);
+};
+vision_ds_Matrix2D.invert = function(this1) {
+	this1 = vision_algorithms_GaussJordan.invert(this1);
+	return this1;
+};
+vision_ds_Matrix2D.clone = function(this1) {
+	var arr = new vision_ds_Array2D(this1.width,this1.height);
+	arr.inner = this1.inner.slice();
+	return arr;
+};
+vision_ds_Matrix2D.toString = function(this1,precision,pretty) {
+	if(pretty == null) {
+		pretty = true;
+	}
+	if(!pretty) {
+		var str = "\n[[";
+		var counter = 0;
+		var _g = 0;
+		var _g1 = this1.inner;
+		while(_g < _g1.length) {
+			var item = _g1[_g];
+			++_g;
+			if(counter < this1.width) {
+				var add = ", " + Std.string(item);
+				if(counter == 0) {
+					add = HxOverrides.substr(add,2,null);
+				}
+				str += add;
+				++counter;
+			} else {
+				counter = 0;
+				str += "],\n [";
+				var add1 = "" + Std.string(item);
+				str += add1;
+				++counter;
+			}
+		}
+		return str.substring(0,str.length) + "]]";
+	}
+	var maxLen = 1;
+	var _g = 0;
+	var _g1 = this1.inner;
+	while(_g < _g1.length) {
+		var item = _g1[_g];
+		++_g;
+		var len;
+		if(precision == -1) {
+			len = (item == null ? "null" : "" + item).length;
+		} else {
+			var multiplier = Math.pow(10,precision);
+			len = Std.string(Math.round(item * multiplier) / multiplier).length;
+		}
+		if(len > maxLen) {
+			maxLen = len;
+		}
+	}
+	++maxLen;
+	var st = "";
+	var _g = 0;
+	var _g1 = maxLen * this1.height + 2 * (this1.height - 1);
+	while(_g < _g1) {
+		var i = _g++;
+		st += " ";
+	}
+	var top = "\n┌ " + st + " ┐";
+	var st = "";
+	var _g = 0;
+	var _g1 = maxLen * this1.height + 2 * (this1.height - 1);
+	while(_g < _g1) {
+		var i = _g++;
+		st += " ";
+	}
+	var bottom = "└ " + st + " ┘";
+	var rows = [""];
+	var counter = 0;
+	var floor = 0;
+	var _g = 0;
+	var _g1 = this1.inner;
+	while(_g < _g1.length) {
+		var item = _g1[_g];
+		++_g;
+		if(counter < this1.height) {
+			var itemString;
+			if(precision != -1) {
+				var multiplier = Math.pow(10,precision);
+				itemString = Math.round(item * multiplier) / multiplier;
+			} else {
+				itemString = item;
+			}
+			var itemString1 = Std.string(itemString);
+			var add;
+			if(precision != -1) {
+				var multiplier1 = Math.pow(10,precision);
+				add = item != Math.round(item * multiplier1) / multiplier1;
+			} else {
+				add = false;
+			}
+			if(add) {
+				itemString1 += "…";
+			}
+			if(itemString1.length < maxLen) {
+				var st = "";
+				var _g2 = 0;
+				var _g3 = Math.floor((maxLen - itemString1.length) / 2);
+				while(_g2 < _g3) {
+					var i = _g2++;
+					st += " ";
+				}
+				var itemString2 = st + itemString1;
+				var st1 = "";
+				var _g4 = 0;
+				var _g5 = Math.ceil((maxLen - itemString1.length) / 2);
+				while(_g4 < _g5) {
+					var i1 = _g4++;
+					st1 += " ";
+				}
+				itemString1 = itemString2 + st1;
+			}
+			var add1 = ", " + itemString1;
+			if(counter == 0) {
+				add1 = HxOverrides.substr(add1,2,null);
+			}
+			rows[floor] += add1;
+			++counter;
+		} else {
+			counter = 0;
+			++floor;
+			rows[floor] = "";
+			var itemString3;
+			if(precision != -1) {
+				var multiplier2 = Math.pow(10,precision);
+				itemString3 = Math.round(item * multiplier2) / multiplier2;
+			} else {
+				itemString3 = item;
+			}
+			var itemString4 = Std.string(itemString3);
+			var add2;
+			if(precision != -1) {
+				var multiplier3 = Math.pow(10,precision);
+				add2 = item != Math.round(item * multiplier3) / multiplier3;
+			} else {
+				add2 = false;
+			}
+			if(add2) {
+				itemString4 += "…";
+			}
+			if(itemString4.length < maxLen) {
+				var st2 = "";
+				var _g6 = 0;
+				var _g7 = Math.floor((maxLen - itemString4.length) / 2);
+				while(_g6 < _g7) {
+					var i2 = _g6++;
+					st2 += " ";
+				}
+				var itemString5 = st2 + itemString4;
+				var st3 = "";
+				var _g8 = 0;
+				var _g9 = Math.ceil((maxLen - itemString4.length) / 2);
+				while(_g8 < _g9) {
+					var i3 = _g8++;
+					st3 += " ";
+				}
+				itemString4 = itemString5 + st3;
+			}
+			var add3 = "" + itemString4;
+			rows[floor] += add3;
+			++counter;
+		}
+	}
+	var string = top + "\n";
+	var _g = 0;
+	while(_g < rows.length) {
+		var r = rows[_g];
+		++_g;
+		string += "│ " + r + " │\n";
+	}
+	string += bottom;
+	return string;
+};
+vision_ds_Matrix2D.ROTATION = function(angle,degrees) {
+	if(degrees == null) {
+		degrees = true;
+	}
+	var xRow = degrees ? Math.cos(angle * Math.PI / 180) : Math.cos(angle);
+	var xRow1 = degrees ? -Math.sin(angle * Math.PI / 180) : -Math.sin(angle);
+	var yRow = degrees ? Math.sin(angle * Math.PI / 180) : Math.sin(angle);
+	var yRow1 = degrees ? Math.cos(angle * Math.PI / 180) : Math.cos(angle);
+	var homogeneousRow = [0,0,1];
+	if(homogeneousRow == null) {
+		homogeneousRow = [0,0,1];
+	}
+	var arr = new vision_ds_Array2D(3,3,null);
+	arr.inner = [xRow,xRow1,0].concat([yRow,yRow1,0]).concat(homogeneousRow);
+	return arr;
+};
+vision_ds_Matrix2D.TRANSLATION = function(x,y) {
+	if(y == null) {
+		y = 0;
+	}
+	if(x == null) {
+		x = 0;
+	}
+	var homogeneousRow = [0,0,1];
+	if(homogeneousRow == null) {
+		homogeneousRow = [0,0,1];
+	}
+	var arr = new vision_ds_Array2D(3,3,null);
+	arr.inner = [1,0,x].concat([0,1,y]).concat(homogeneousRow);
+	return arr;
+};
+vision_ds_Matrix2D.SCALE = function(scaleX,scaleY) {
+	if(scaleY == null) {
+		scaleY = 1;
+	}
+	if(scaleX == null) {
+		scaleX = 1;
+	}
+	var homogeneousRow = [0,0,1];
+	if(homogeneousRow == null) {
+		homogeneousRow = [0,0,1];
+	}
+	var arr = new vision_ds_Array2D(3,3,null);
+	arr.inner = [scaleX,0,0].concat([0,scaleY,0]).concat(homogeneousRow);
+	return arr;
+};
+vision_ds_Matrix2D.SHEAR = function(shearX,shearY) {
+	if(shearY == null) {
+		shearY = 0;
+	}
+	if(shearX == null) {
+		shearX = 0;
+	}
+	var homogeneousRow = [0,0,1];
+	if(homogeneousRow == null) {
+		homogeneousRow = [0,0,1];
+	}
+	var arr = new vision_ds_Array2D(3,3,null);
+	arr.inner = [1,shearX,0].concat([shearY,1,0]).concat(homogeneousRow);
+	return arr;
+};
+vision_ds_Matrix2D.REFLECTION = function(angle,degrees) {
+	if(degrees == null) {
+		degrees = true;
+	}
+	angle *= 2;
+	var xRow = degrees ? Math.cos(angle * Math.PI / 180) : Math.cos(angle);
+	var xRow1 = degrees ? Math.sin(angle * Math.PI / 180) : Math.sin(angle);
+	var yRow = degrees ? Math.sin(angle * Math.PI / 180) : Math.sin(angle);
+	var yRow1 = degrees ? -Math.cos(angle * Math.PI / 180) : -Math.cos(angle);
+	var homogeneousRow = [0,0,1];
+	if(homogeneousRow == null) {
+		homogeneousRow = [0,0,1];
+	}
+	var arr = new vision_ds_Array2D(3,3,null);
+	arr.inner = [xRow,xRow1,0].concat([yRow,yRow1,0]).concat(homogeneousRow);
+	return arr;
+};
+vision_ds_Matrix2D.createFilled = function() {
+	var $l=arguments.length;
+	var rows = new Array($l>0?$l-0:0);
+	for(var $i=0;$i<$l;++$i){rows[$i-0]=arguments[$i];}
+	var arr = new vision_ds_Array2D(rows[0].length,rows.length);
+	arr.inner = [];
+	var _g_current = 0;
+	var _g_args = rows;
+	while(_g_current < _g_args.length) {
+		var r = _g_args[_g_current++];
+		arr.inner.concat(r);
+	}
+	return arr;
+};
+vision_ds_Matrix2D.createTransformation = function(xRow,yRow,homogeneousRow) {
+	if(homogeneousRow == null) {
+		homogeneousRow = [0,0,1];
+	}
+	var arr = new vision_ds_Array2D(3,3,null);
+	arr.inner = xRow.concat(yRow).concat(homogeneousRow);
+	return arr;
+};
+vision_ds_Matrix2D.multiplyMatrices = function(a,b) {
+	if(a.height != b.width) {
+		throw haxe_Exception.thrown(new vision_exceptions_MatrixOperationError("mult",[a,b],0));
+	}
+	var result = new vision_ds_Array2D(a.width,b.height);
+	var _g = 0;
+	var _g1 = result.height;
+	while(_g < _g1) {
+		var x = _g++;
+		var _g2 = 0;
+		var _g3 = result.width;
+		while(_g2 < _g3) {
+			var y = _g2++;
+			var sum = 0.0;
+			var _g4 = 0;
+			var _g5 = a.height;
+			while(_g4 < _g5) {
+				var k = _g4++;
+				sum += a.inner[y * a.height + k] * b.inner[k * b.height + x];
+			}
+			result.inner[x + y * result.height] = sum;
+		}
+	}
+	return result;
+};
+vision_ds_Matrix2D.addMatrices = function(a,b) {
+	if(a.width != b.width || a.height != b.height) {
+		throw haxe_Exception.thrown(new vision_exceptions_MatrixOperationError("add",[a,b],1));
+	}
+	var result = new vision_ds_Array2D(a.width,a.height);
+	var _g = 0;
+	var _g1 = result.height;
+	while(_g < _g1) {
+		var x = _g++;
+		var _g2 = 0;
+		var _g3 = result.width;
+		while(_g2 < _g3) {
+			var y = _g2++;
+			result.inner[x + y * result.height] = a.inner[y * a.height + x] + b.inner[y * b.height + x];
+		}
+	}
+	return result;
+};
+vision_ds_Matrix2D.subtractMatrices = function(a,b) {
+	if(a.width != b.width || a.height != b.height) {
+		throw haxe_Exception.thrown(new vision_exceptions_MatrixOperationError("sub",[a,b],2));
+	}
+	var result = new vision_ds_Array2D(a.width,a.height);
+	var _g = 0;
+	var _g1 = result.height;
+	while(_g < _g1) {
+		var x = _g++;
+		var _g2 = 0;
+		var _g3 = result.width;
+		while(_g2 < _g3) {
+			var y = _g2++;
+			result.inner[x + y * result.height] = a.inner[y * a.height + x] - b.inner[y * b.height + x];
+		}
+	}
+	return result;
+};
+vision_ds_Matrix2D.divideMatrices = function(a,b) {
+	if(a.height != b.width) {
+		throw haxe_Exception.thrown(new vision_exceptions_MatrixOperationError("div",[a,b],3));
+	}
+	var result = new vision_ds_Array2D(a.width,b.height);
+	var _g = 0;
+	var _g1 = result.height;
+	while(_g < _g1) {
+		var x = _g++;
+		var _g2 = 0;
+		var _g3 = result.width;
+		while(_g2 < _g3) {
+			var y = _g2++;
+			var sum = 0.0;
+			var _g4 = 0;
+			var _g5 = a.height;
+			while(_g4 < _g5) {
+				var k = _g4++;
+				sum += a.inner[y * a.height + k] / b.inner[k * b.height + x];
+			}
+			result.inner[x + y * result.height] = sum;
+		}
+	}
+	return result;
+};
+vision_ds_Matrix2D.multiply = function(this1,b) {
+	if(this1.height != b.width) {
+		throw haxe_Exception.thrown(new vision_exceptions_MatrixOperationError("mult",[this1,b],0));
+	}
+	var result = new vision_ds_Array2D(this1.width,b.height);
+	var _g = 0;
+	var _g1 = result.height;
+	while(_g < _g1) {
+		var x = _g++;
+		var _g2 = 0;
+		var _g3 = result.width;
+		while(_g2 < _g3) {
+			var y = _g2++;
+			var sum = 0.0;
+			var _g4 = 0;
+			var _g5 = this1.height;
+			while(_g4 < _g5) {
+				var k = _g4++;
+				sum += this1.inner[y * this1.height + k] * b.inner[k * b.height + x];
+			}
+			result.inner[x + y * result.height] = sum;
+		}
+	}
+	this1 = result;
+	return this1;
+};
+vision_ds_Matrix2D.add = function(this1,b) {
+	if(this1.width != b.width || this1.height != b.height) {
+		throw haxe_Exception.thrown(new vision_exceptions_MatrixOperationError("add",[this1,b],1));
+	}
+	var _g = 0;
+	var _g1 = this1.height;
+	while(_g < _g1) {
+		var x = _g++;
+		var _g2 = 0;
+		var _g3 = this1.width;
+		while(_g2 < _g3) {
+			var y = _g2++;
+			this1.inner[x + y * this1.height] = this1.inner[y * this1.height + x] + b.inner[y * b.height + x];
+		}
+	}
+	return this1;
+};
+vision_ds_Matrix2D.subtract = function(this1,b) {
+	if(this1.width != b.width || this1.height != b.height) {
+		throw haxe_Exception.thrown(new vision_exceptions_MatrixOperationError("sub",[this1,b],2));
+	}
+	var _g = 0;
+	var _g1 = this1.height;
+	while(_g < _g1) {
+		var x = _g++;
+		var _g2 = 0;
+		var _g3 = this1.width;
+		while(_g2 < _g3) {
+			var y = _g2++;
+			this1.inner[x + y * this1.height] = this1.inner[y * this1.height + x] - b.inner[y * b.height + x];
+		}
+	}
+	return this1;
+};
+vision_ds_Matrix2D.divide = function(this1,b) {
+	if(this1.height != b.width) {
+		throw haxe_Exception.thrown(new vision_exceptions_MatrixOperationError("div",[this1,b],3));
+	}
+	var result = new vision_ds_Array2D(this1.width,b.height);
+	var _g = 0;
+	var _g1 = result.height;
+	while(_g < _g1) {
+		var x = _g++;
+		var _g2 = 0;
+		var _g3 = result.width;
+		while(_g2 < _g3) {
+			var y = _g2++;
+			var sum = 0.0;
+			var _g4 = 0;
+			var _g5 = this1.height;
+			while(_g4 < _g5) {
+				var k = _g4++;
+				sum += this1.inner[y * this1.height + k] / b.inner[k * b.height + x];
+			}
+			result.inner[x + y * result.height] = sum;
+		}
+	}
+	this1 = result;
+	return this1;
+};
+vision_ds_Matrix2D.to_array_array_float = function(this1) {
+	var array = this1.inner;
+	var delimiter = this1.width;
+	var raised = [];
+	var _g = 0;
+	var _g1 = array.length;
+	while(_g < _g1) {
+		var i = _g++;
+		if(raised[Math.floor(i / delimiter)] == null) {
+			raised[Math.floor(i / delimiter)] = [];
+		}
+		raised[Math.floor(i / delimiter)][i % delimiter] = array[i];
+	}
+	return raised;
+};
+vision_ds_Matrix2D.from_array_array_float = function(array) {
+	var arr2d = new vision_ds_Array2D(array[0].length,array.length);
+	var flat = [];
+	var _g = 0;
+	while(_g < array.length) {
+		var item = array[_g];
+		++_g;
+		flat = flat.concat(item);
+	}
+	arr2d.inner = flat;
+	return arr2d;
+};
+vision_ds_Matrix2D.from_array_array_int = function(array) {
+	var arr2d = new vision_ds_Array2D(array[0].length,array.length);
+	var flat = [];
+	var _g = 0;
+	while(_g < array.length) {
+		var item = array[_g];
+		++_g;
+		flat = flat.concat(item);
+	}
+	arr2d.inner = flat;
+	return arr2d;
+};
 var vision_ds_Point2D = function(x,y) {
 	if(y == null) {
 		y = 0;
@@ -76028,6 +76794,16 @@ vision_ds_Point2D.prototype = {
 		var x = point.x - this.x;
 		var y = point.y - this.y;
 		return Math.sqrt(x * x + y * y);
+	}
+	,degreesTo: function(point) {
+		var x = point.x - this.x;
+		var y = point.y - this.y;
+		return Math.atan2(x,y) * 180 / Math.PI;
+	}
+	,radiansTo: function(point) {
+		var x = point.x - this.x;
+		var y = point.y - this.y;
+		return Math.atan2(x,y) * 180 / Math.PI;
 	}
 	,__class__: vision_ds_Point2D
 };
@@ -76246,14 +77022,593 @@ vision_ds_Rectangle.__name__ = "vision.ds.Rectangle";
 vision_ds_Rectangle.prototype = {
 	__class__: vision_ds_Rectangle
 };
+var vision_exceptions_VisionException = function(message,type) {
+	throw "Exception - " + type + ":\n\n\t" + message + "\n";
+};
+$hxClasses["vision.exceptions.VisionException"] = vision_exceptions_VisionException;
+vision_exceptions_VisionException.__name__ = "vision.exceptions.VisionException";
+vision_exceptions_VisionException.prototype = {
+	__class__: vision_exceptions_VisionException
+};
+var vision_exceptions_MatrixOperationError = function(op,matrices,offense) {
+	vision_exceptions_VisionException.call(this,this.errorByType(op,matrices,offense),"Matrix " + (op.charAt(0).toUpperCase() + HxOverrides.substr(op,1,null)) + " Error");
+};
+$hxClasses["vision.exceptions.MatrixOperationError"] = vision_exceptions_MatrixOperationError;
+vision_exceptions_MatrixOperationError.__name__ = "vision.exceptions.MatrixOperationError";
+vision_exceptions_MatrixOperationError.__super__ = vision_exceptions_VisionException;
+vision_exceptions_MatrixOperationError.prototype = $extend(vision_exceptions_VisionException.prototype,{
+	errorByType: function(type,mats,off) {
+		var sign = "";
+		switch(type) {
+		case "Add":case "Addition":case "add":case "addition":
+			sign = "+";
+			break;
+		case "Div":case "Division":case "div":case "division":
+			sign = "÷";
+			break;
+		case "Mult":case "Multiplication":case "mult":case "multiplication":
+			sign = "×";
+			break;
+		case "Sub":case "Subtraction":case "sub":case "subtraction":
+			sign = "-";
+			break;
+		}
+		var msg = "Cannot calculate:\n\n";
+		var _g = [];
+		var _g1 = 0;
+		var this1 = mats[0];
+		var maxLen = 1;
+		var _g2 = 0;
+		var _g3 = this1.inner;
+		while(_g2 < _g3.length) {
+			var item = _g3[_g2];
+			++_g2;
+			var multiplier = Math.pow(10,3);
+			var len = Std.string(Math.round(item * multiplier) / multiplier).length;
+			if(len > maxLen) {
+				maxLen = len;
+			}
+		}
+		++maxLen;
+		var st = "";
+		var _g2 = 0;
+		var _g3 = maxLen * this1.height + 2 * (this1.height - 1);
+		while(_g2 < _g3) {
+			var i = _g2++;
+			st += " ";
+		}
+		var top = "\n┌ " + st + " ┐";
+		var st = "";
+		var _g2 = 0;
+		var _g3 = maxLen * this1.height + 2 * (this1.height - 1);
+		while(_g2 < _g3) {
+			var i = _g2++;
+			st += " ";
+		}
+		var bottom = "└ " + st + " ┘";
+		var rows = [""];
+		var counter = 0;
+		var floor = 0;
+		var _g2 = 0;
+		var _g3 = this1.inner;
+		while(_g2 < _g3.length) {
+			var item = _g3[_g2];
+			++_g2;
+			if(counter < this1.height) {
+				var multiplier = Math.pow(10,3);
+				var itemString = Std.string(Math.round(item * multiplier) / multiplier);
+				var multiplier1 = Math.pow(10,3);
+				if(item != Math.round(item * multiplier1) / multiplier1) {
+					itemString += "…";
+				}
+				if(itemString.length < maxLen) {
+					var st = "";
+					var _g4 = 0;
+					var _g5 = Math.floor((maxLen - itemString.length) / 2);
+					while(_g4 < _g5) {
+						var i = _g4++;
+						st += " ";
+					}
+					var itemString1 = st + itemString;
+					var st1 = "";
+					var _g6 = 0;
+					var _g7 = Math.ceil((maxLen - itemString.length) / 2);
+					while(_g6 < _g7) {
+						var i1 = _g6++;
+						st1 += " ";
+					}
+					itemString = itemString1 + st1;
+				}
+				var add = ", " + itemString;
+				if(counter == 0) {
+					add = HxOverrides.substr(add,2,null);
+				}
+				rows[floor] += add;
+				++counter;
+			} else {
+				counter = 0;
+				++floor;
+				rows[floor] = "";
+				var multiplier2 = Math.pow(10,3);
+				var itemString2 = Std.string(Math.round(item * multiplier2) / multiplier2);
+				var multiplier3 = Math.pow(10,3);
+				if(item != Math.round(item * multiplier3) / multiplier3) {
+					itemString2 += "…";
+				}
+				if(itemString2.length < maxLen) {
+					var st2 = "";
+					var _g8 = 0;
+					var _g9 = Math.floor((maxLen - itemString2.length) / 2);
+					while(_g8 < _g9) {
+						var i2 = _g8++;
+						st2 += " ";
+					}
+					var itemString3 = st2 + itemString2;
+					var st3 = "";
+					var _g10 = 0;
+					var _g11 = Math.ceil((maxLen - itemString2.length) / 2);
+					while(_g10 < _g11) {
+						var i3 = _g10++;
+						st3 += " ";
+					}
+					itemString2 = itemString3 + st3;
+				}
+				var add1 = "" + itemString2;
+				rows[floor] += add1;
+				++counter;
+			}
+		}
+		var string = top + "\n";
+		var _g2 = 0;
+		while(_g2 < rows.length) {
+			var r = rows[_g2];
+			++_g2;
+			string += "│ " + r + " │\n";
+		}
+		var array = (string += bottom).split("\n").length;
+		var this1 = mats[1];
+		var maxLen = 1;
+		var _g2 = 0;
+		var _g3 = this1.inner;
+		while(_g2 < _g3.length) {
+			var item = _g3[_g2];
+			++_g2;
+			var multiplier = Math.pow(10,3);
+			var len = Std.string(Math.round(item * multiplier) / multiplier).length;
+			if(len > maxLen) {
+				maxLen = len;
+			}
+		}
+		++maxLen;
+		var st = "";
+		var _g2 = 0;
+		var _g3 = maxLen * this1.height + 2 * (this1.height - 1);
+		while(_g2 < _g3) {
+			var i = _g2++;
+			st += " ";
+		}
+		var top = "\n┌ " + st + " ┐";
+		var st = "";
+		var _g2 = 0;
+		var _g3 = maxLen * this1.height + 2 * (this1.height - 1);
+		while(_g2 < _g3) {
+			var i = _g2++;
+			st += " ";
+		}
+		var bottom = "└ " + st + " ┘";
+		var rows = [""];
+		var counter = 0;
+		var floor = 0;
+		var _g2 = 0;
+		var _g3 = this1.inner;
+		while(_g2 < _g3.length) {
+			var item = _g3[_g2];
+			++_g2;
+			if(counter < this1.height) {
+				var multiplier = Math.pow(10,3);
+				var itemString = Std.string(Math.round(item * multiplier) / multiplier);
+				var multiplier1 = Math.pow(10,3);
+				if(item != Math.round(item * multiplier1) / multiplier1) {
+					itemString += "…";
+				}
+				if(itemString.length < maxLen) {
+					var st = "";
+					var _g4 = 0;
+					var _g5 = Math.floor((maxLen - itemString.length) / 2);
+					while(_g4 < _g5) {
+						var i = _g4++;
+						st += " ";
+					}
+					var itemString1 = st + itemString;
+					var st1 = "";
+					var _g6 = 0;
+					var _g7 = Math.ceil((maxLen - itemString.length) / 2);
+					while(_g6 < _g7) {
+						var i1 = _g6++;
+						st1 += " ";
+					}
+					itemString = itemString1 + st1;
+				}
+				var add = ", " + itemString;
+				if(counter == 0) {
+					add = HxOverrides.substr(add,2,null);
+				}
+				rows[floor] += add;
+				++counter;
+			} else {
+				counter = 0;
+				++floor;
+				rows[floor] = "";
+				var multiplier2 = Math.pow(10,3);
+				var itemString2 = Std.string(Math.round(item * multiplier2) / multiplier2);
+				var multiplier3 = Math.pow(10,3);
+				if(item != Math.round(item * multiplier3) / multiplier3) {
+					itemString2 += "…";
+				}
+				if(itemString2.length < maxLen) {
+					var st2 = "";
+					var _g8 = 0;
+					var _g9 = Math.floor((maxLen - itemString2.length) / 2);
+					while(_g8 < _g9) {
+						var i2 = _g8++;
+						st2 += " ";
+					}
+					var itemString3 = st2 + itemString2;
+					var st3 = "";
+					var _g10 = 0;
+					var _g11 = Math.ceil((maxLen - itemString2.length) / 2);
+					while(_g10 < _g11) {
+						var i3 = _g10++;
+						st3 += " ";
+					}
+					itemString2 = itemString3 + st3;
+				}
+				var add1 = "" + itemString2;
+				rows[floor] += add1;
+				++counter;
+			}
+		}
+		var string = top + "\n";
+		var _g2 = 0;
+		while(_g2 < rows.length) {
+			var r = rows[_g2];
+			++_g2;
+			string += "│ " + r + " │\n";
+		}
+		var values = [array,(string += bottom).split("\n").length];
+		var max = values[0];
+		var _g2 = 0;
+		var _g3 = values.length;
+		while(_g2 < _g3) {
+			var i = _g2++;
+			if(values[i] > max) {
+				max = values[i];
+			}
+		}
+		var _g2 = max;
+		while(_g1 < _g2) {
+			var i = _g1++;
+			var tmp;
+			if(mats[0].width + 3 > i) {
+				var this1 = mats[0];
+				var maxLen = 1;
+				var _g3 = 0;
+				var _g4 = this1.inner;
+				while(_g3 < _g4.length) {
+					var item = _g4[_g3];
+					++_g3;
+					var multiplier = Math.pow(10,3);
+					var len = Std.string(Math.round(item * multiplier) / multiplier).length;
+					if(len > maxLen) {
+						maxLen = len;
+					}
+				}
+				++maxLen;
+				var st = "";
+				var _g5 = 0;
+				var _g6 = maxLen * this1.height + 2 * (this1.height - 1);
+				while(_g5 < _g6) {
+					var i1 = _g5++;
+					st += " ";
+				}
+				var top = "\n┌ " + st + " ┐";
+				var st1 = "";
+				var _g7 = 0;
+				var _g8 = maxLen * this1.height + 2 * (this1.height - 1);
+				while(_g7 < _g8) {
+					var i2 = _g7++;
+					st1 += " ";
+				}
+				var bottom = "└ " + st1 + " ┘";
+				var rows = [""];
+				var counter = 0;
+				var floor = 0;
+				var _g9 = 0;
+				var _g10 = this1.inner;
+				while(_g9 < _g10.length) {
+					var item1 = _g10[_g9];
+					++_g9;
+					if(counter < this1.height) {
+						var multiplier1 = Math.pow(10,3);
+						var itemString = Std.string(Math.round(item1 * multiplier1) / multiplier1);
+						var multiplier2 = Math.pow(10,3);
+						if(item1 != Math.round(item1 * multiplier2) / multiplier2) {
+							itemString += "…";
+						}
+						if(itemString.length < maxLen) {
+							var st2 = "";
+							var _g11 = 0;
+							var _g12 = Math.floor((maxLen - itemString.length) / 2);
+							while(_g11 < _g12) {
+								var i3 = _g11++;
+								st2 += " ";
+							}
+							var itemString1 = st2 + itemString;
+							var st3 = "";
+							var _g13 = 0;
+							var _g14 = Math.ceil((maxLen - itemString.length) / 2);
+							while(_g13 < _g14) {
+								var i4 = _g13++;
+								st3 += " ";
+							}
+							itemString = itemString1 + st3;
+						}
+						var add = ", " + itemString;
+						if(counter == 0) {
+							add = HxOverrides.substr(add,2,null);
+						}
+						rows[floor] += add;
+						++counter;
+					} else {
+						counter = 0;
+						++floor;
+						rows[floor] = "";
+						var multiplier3 = Math.pow(10,3);
+						var itemString2 = Std.string(Math.round(item1 * multiplier3) / multiplier3);
+						var multiplier4 = Math.pow(10,3);
+						if(item1 != Math.round(item1 * multiplier4) / multiplier4) {
+							itemString2 += "…";
+						}
+						if(itemString2.length < maxLen) {
+							var st4 = "";
+							var _g15 = 0;
+							var _g16 = Math.floor((maxLen - itemString2.length) / 2);
+							while(_g15 < _g16) {
+								var i5 = _g15++;
+								st4 += " ";
+							}
+							var itemString3 = st4 + itemString2;
+							var st5 = "";
+							var _g17 = 0;
+							var _g18 = Math.ceil((maxLen - itemString2.length) / 2);
+							while(_g17 < _g18) {
+								var i6 = _g17++;
+								st5 += " ";
+							}
+							itemString2 = itemString3 + st5;
+						}
+						var add1 = "" + itemString2;
+						rows[floor] += add1;
+						++counter;
+					}
+				}
+				var string = top + "\n";
+				var _g19 = 0;
+				while(_g19 < rows.length) {
+					var r = rows[_g19];
+					++_g19;
+					string += "│ " + r + " │\n";
+				}
+				tmp = (string += bottom).split("\n")[i];
+			} else {
+				tmp = "";
+			}
+			var tmp1;
+			if(mats[1].width + 3 > i) {
+				var this2 = mats[1];
+				var maxLen1 = 1;
+				var _g20 = 0;
+				var _g21 = this2.inner;
+				while(_g20 < _g21.length) {
+					var item2 = _g21[_g20];
+					++_g20;
+					var multiplier5 = Math.pow(10,3);
+					var len1 = Std.string(Math.round(item2 * multiplier5) / multiplier5).length;
+					if(len1 > maxLen1) {
+						maxLen1 = len1;
+					}
+				}
+				++maxLen1;
+				var st6 = "";
+				var _g22 = 0;
+				var _g23 = maxLen1 * this2.height + 2 * (this2.height - 1);
+				while(_g22 < _g23) {
+					var i7 = _g22++;
+					st6 += " ";
+				}
+				var top1 = "\n┌ " + st6 + " ┐";
+				var st7 = "";
+				var _g24 = 0;
+				var _g25 = maxLen1 * this2.height + 2 * (this2.height - 1);
+				while(_g24 < _g25) {
+					var i8 = _g24++;
+					st7 += " ";
+				}
+				var bottom1 = "└ " + st7 + " ┘";
+				var rows1 = [""];
+				var counter1 = 0;
+				var floor1 = 0;
+				var _g26 = 0;
+				var _g27 = this2.inner;
+				while(_g26 < _g27.length) {
+					var item3 = _g27[_g26];
+					++_g26;
+					if(counter1 < this2.height) {
+						var multiplier6 = Math.pow(10,3);
+						var itemString4 = Std.string(Math.round(item3 * multiplier6) / multiplier6);
+						var multiplier7 = Math.pow(10,3);
+						if(item3 != Math.round(item3 * multiplier7) / multiplier7) {
+							itemString4 += "…";
+						}
+						if(itemString4.length < maxLen1) {
+							var st8 = "";
+							var _g28 = 0;
+							var _g29 = Math.floor((maxLen1 - itemString4.length) / 2);
+							while(_g28 < _g29) {
+								var i9 = _g28++;
+								st8 += " ";
+							}
+							var itemString5 = st8 + itemString4;
+							var st9 = "";
+							var _g30 = 0;
+							var _g31 = Math.ceil((maxLen1 - itemString4.length) / 2);
+							while(_g30 < _g31) {
+								var i10 = _g30++;
+								st9 += " ";
+							}
+							itemString4 = itemString5 + st9;
+						}
+						var add2 = ", " + itemString4;
+						if(counter1 == 0) {
+							add2 = HxOverrides.substr(add2,2,null);
+						}
+						rows1[floor1] += add2;
+						++counter1;
+					} else {
+						counter1 = 0;
+						++floor1;
+						rows1[floor1] = "";
+						var multiplier8 = Math.pow(10,3);
+						var itemString6 = Std.string(Math.round(item3 * multiplier8) / multiplier8);
+						var multiplier9 = Math.pow(10,3);
+						if(item3 != Math.round(item3 * multiplier9) / multiplier9) {
+							itemString6 += "…";
+						}
+						if(itemString6.length < maxLen1) {
+							var st10 = "";
+							var _g32 = 0;
+							var _g33 = Math.floor((maxLen1 - itemString6.length) / 2);
+							while(_g32 < _g33) {
+								var i11 = _g32++;
+								st10 += " ";
+							}
+							var itemString7 = st10 + itemString6;
+							var st11 = "";
+							var _g34 = 0;
+							var _g35 = Math.ceil((maxLen1 - itemString6.length) / 2);
+							while(_g34 < _g35) {
+								var i12 = _g34++;
+								st11 += " ";
+							}
+							itemString6 = itemString7 + st11;
+						}
+						var add3 = "" + itemString6;
+						rows1[floor1] += add3;
+						++counter1;
+					}
+				}
+				var string1 = top1 + "\n";
+				var _g36 = 0;
+				while(_g36 < rows1.length) {
+					var r1 = rows1[_g36];
+					++_g36;
+					string1 += "│ " + r1 + " │\n";
+				}
+				tmp1 = (string1 += bottom1).split("\n")[i];
+			} else {
+				tmp1 = "";
+			}
+			_g.push([tmp,tmp1]);
+		}
+		var rows = _g;
+		var values = [mats[0].width + 2,mats[1].width + 2];
+		var max = values[0];
+		var _g = 0;
+		var _g1 = values.length;
+		while(_g < _g1) {
+			var i = _g++;
+			if(values[i] > max) {
+				max = values[i];
+			}
+		}
+		var signRow = Math.ceil(max / 2);
+		var currentRow = 0;
+		var _g = 0;
+		while(_g < rows.length) {
+			var r = rows[_g];
+			++_g;
+			haxe_Log.trace(r,{ fileName : "vision/exceptions/MatrixOperationError.hx", lineNumber : 32, className : "vision.exceptions.MatrixOperationError", methodName : "errorByType"});
+			if(r[0].length == 0) {
+				var _g1 = [];
+				var _g2 = 0;
+				var _g3 = r[1].length;
+				while(_g2 < _g3) {
+					var i = _g2++;
+					_g1.push(" ");
+				}
+				r[0] = _g1.join("");
+			}
+			if(r[1].length == 0) {
+				var _g4 = [];
+				var _g5 = 0;
+				var _g6 = r[0].length;
+				while(_g5 < _g6) {
+					var i1 = _g5++;
+					_g4.push(" ");
+				}
+				r[1] = _g4.join("");
+			}
+			msg += "\t" + r[0] + "  ";
+			if(currentRow == signRow) {
+				msg += sign;
+			} else {
+				msg += " ";
+			}
+			msg += "  " + r[1];
+			++currentRow;
+			msg += "\n";
+		}
+		msg += "\n\t";
+		switch(off) {
+		case 0:
+			msg += "Width of first matrix (" + mats[0].height + ") is different from the height of the second (" + mats[1].width + ")";
+			break;
+		case 1:
+			msg += "Width & height of first matrix (" + mats[0].height + "×" + mats[0].width + ") are different from those of the second matrix (" + mats[1].height + "×" + mats[1].width + ")";
+			break;
+		case 2:
+			msg += "Width & height of first matrix (" + mats[0].height + "×" + mats[0].width + ") are different from those of the second matrix (" + mats[1].height + "×" + mats[1].width + ")";
+			break;
+		case 3:
+			msg += "Width of first matrix (" + mats[0].height + ") is different from the height of the second (" + mats[1].width + ")";
+			break;
+		}
+		return msg;
+	}
+	,__class__: vision_exceptions_MatrixOperationError
+});
 var vision_tools_MathTools = function() { };
 $hxClasses["vision.tools.MathTools"] = vision_tools_MathTools;
 vision_tools_MathTools.__name__ = "vision.tools.MathTools";
 vision_tools_MathTools.__properties__ = {get_NaN:"get_NaN",get_POSITIVE_INFINITY:"get_POSITIVE_INFINITY",get_NEGATIVE_INFINITY:"get_NEGATIVE_INFINITY",get_PI_OVER_2:"get_PI_OVER_2",get_PI:"get_PI"};
 vision_tools_MathTools.distanceFromRayToPoint2D = function(ray,point) {
-	var closestPoint = vision_tools_MathTools.getClosestPointOnRay2D(point,ray);
-	var dx = closestPoint.x - point.x;
-	var dy = closestPoint.y - point.y;
+	var vx = point.x - ray.point.x;
+	var vy = point.y - ray.point.y;
+	var projection = (vx + vy * ray.slope) / (1 + Math.pow(ray.slope,2));
+	var x = ray.point.x + projection;
+	var y = ray.point.y + projection * ray.slope;
+	var x1 = x;
+	var y1 = y;
+	if(y1 == null) {
+		y1 = 0;
+	}
+	if(x1 == null) {
+		x1 = 0;
+	}
+	var closestPoint_x = x1;
+	var closestPoint_y = y1;
+	var dx = closestPoint_x - point.x;
+	var dy = closestPoint_y - point.y;
 	var distance = Math.sqrt(Math.pow(dx,2) + Math.pow(dy,2));
 	return distance;
 };
@@ -76565,70 +77920,6 @@ vision_tools_MathTools.invertInsideRectangle = function(line,rect) {
 	line.end.y = rect.y + rect.width - diffEY;
 	return line;
 };
-vision_tools_MathTools.distanceFromPointToRay2D = function(point,ray) {
-	var closestPoint = vision_tools_MathTools.getClosestPointOnRay2D(point,ray);
-	var dx = closestPoint.x - point.x;
-	var dy = closestPoint.y - point.y;
-	var distance = Math.sqrt(Math.pow(dx,2) + Math.pow(dy,2));
-	return distance;
-};
-vision_tools_MathTools.distanceFromPointToLine2D = function(point,line) {
-	var x = line.end.x - line.start.x;
-	var y = line.end.y - line.start.y;
-	if(y == null) {
-		y = 0;
-	}
-	if(x == null) {
-		x = 0;
-	}
-	var middle_x = x;
-	var middle_y = y;
-	var denominator = middle_x * middle_x + middle_y * middle_y;
-	var ratio = ((point.x - line.start.x) * middle_x + (point.y - line.start.y) * middle_y) / denominator;
-	if(ratio > 1) {
-		ratio = 1;
-	} else if(ratio < 0) {
-		ratio = 0;
-	}
-	var x = line.start.x + ratio * middle_x;
-	var y = line.start.y + ratio * middle_y;
-	var dx = x - point.x;
-	var dy = y - point.y;
-	return Math.sqrt(dx * dx + dy * dy);
-};
-vision_tools_MathTools.radiansFromPointToLine2D = function(point,line) {
-	var angle = Math.atan2(line.end.x - line.start.x,line.end.y - line.start.y);
-	var angle2 = Math.atan2(point.x - line.start.x,point.y - line.start.y);
-	return angle2 - angle;
-};
-vision_tools_MathTools.radiansFromPointToPoint2D = function(point1,point2) {
-	var x = point2.x - point1.x;
-	var y = point2.y - point1.y;
-	return Math.atan2(x,y);
-};
-vision_tools_MathTools.degreesFromPointToPoint2D = function(point1,point2) {
-	var x = point2.x - point1.x;
-	var y = point2.y - point1.y;
-	return Math.atan2(x,y) * 180 / Math.PI;
-};
-vision_tools_MathTools.slopeFromPointToPoint2D = function(point1,point2) {
-	var x = point2.x - point1.x;
-	var y = point2.y - point1.y;
-	return Math.tan(Math.atan2(x,y));
-};
-vision_tools_MathTools.distanceBetweenPoints = function(point1,point2) {
-	var x = point2.x - point1.x;
-	var y = point2.y - point1.y;
-	return Math.sqrt(x * x + y * y);
-};
-vision_tools_MathTools.getClosestPointOnRay2D = function(point,ray) {
-	var vx = point.x - ray.point.x;
-	var vy = point.y - ray.point.y;
-	var projection = (vx + vy * ray.slope) / (1 + Math.pow(ray.slope,2));
-	var x = ray.point.x + projection;
-	var y = ray.point.y + projection * ray.slope;
-	return new vision_ds_Point2D(x,y);
-};
 vision_tools_MathTools.clamp = function(value,mi,ma) {
 	var values = [value,mi];
 	var max = values[0];
@@ -76704,7 +77995,12 @@ vision_tools_MathTools.boundInt = function(value,min,max) {
 	return value;
 };
 vision_tools_MathTools.boundFloat = function(value,min,max) {
-	return Math.min(Math.max(value,min),max);
+	var t = value < min ? min : value;
+	if(t > max) {
+		return max;
+	} else {
+		return t;
+	}
 };
 vision_tools_MathTools.slopeToDegrees = function(slope) {
 	return Math.atan(slope) * 180 / Math.PI;
@@ -76732,6 +78028,24 @@ vision_tools_MathTools.cosec = function(radians) {
 };
 vision_tools_MathTools.sec = function(radians) {
 	return 1 / Math.cos(radians);
+};
+vision_tools_MathTools.sind = function(degrees) {
+	return Math.sin(degrees * Math.PI / 180);
+};
+vision_tools_MathTools.cosd = function(degrees) {
+	return Math.cos(degrees * Math.PI / 180);
+};
+vision_tools_MathTools.tand = function(degrees) {
+	return Math.tan(degrees * Math.PI / 180);
+};
+vision_tools_MathTools.cotand = function(degrees) {
+	return 1 / Math.tan(degrees * Math.PI / 180);
+};
+vision_tools_MathTools.cosecd = function(degrees) {
+	return 1 / Math.sin(degrees * Math.PI / 180);
+};
+vision_tools_MathTools.secd = function(degrees) {
+	return 1 / Math.cos(degrees * Math.PI / 180);
 };
 vision_tools_MathTools.truncate = function(num,numbersAfterDecimal) {
 	var multiplier = Math.pow(10,numbersAfterDecimal);
@@ -76779,8 +78093,8 @@ vision_tools_MathTools.atan2 = function(y,x) {
 vision_tools_MathTools.ceil = function(v) {
 	return Math.ceil(v);
 };
-vision_tools_MathTools.cos = function(v) {
-	return Math.cos(v);
+vision_tools_MathTools.cos = function(radians) {
+	return Math.cos(radians);
 };
 vision_tools_MathTools.exp = function(v) {
 	return Math.exp(v);
@@ -76800,14 +78114,14 @@ vision_tools_MathTools.random = function() {
 vision_tools_MathTools.round = function(v) {
 	return Math.round(v);
 };
-vision_tools_MathTools.sin = function(v) {
-	return Math.sin(v);
+vision_tools_MathTools.sin = function(radians) {
+	return Math.sin(radians);
 };
 vision_tools_MathTools.sqrt = function(v) {
 	return Math.sqrt(v);
 };
-vision_tools_MathTools.tan = function(v) {
-	return Math.tan(v);
+vision_tools_MathTools.tan = function(radians) {
+	return Math.tan(radians);
 };
 vision_tools_MathTools.ffloor = function(v) {
 	return Math.floor(v);
@@ -76880,7 +78194,7 @@ while(_g < _g1) {
 }
 lime_system_CFFI.available = false;
 lime_system_CFFI.enabled = false;
-lime_utils_Log.level = 3;
+lime_utils_Log.level = 4;
 if(typeof console == "undefined") {
 	console = {}
 }
@@ -76899,6 +78213,8 @@ openfl_display_DisplayObject.__tempStack = new lime_utils_ObjectPool(function() 
 },function(stack) {
 	stack.set_length(0);
 });
+geometry_basic_EllipseBase.all = [];
+geometry_basic_Joint.all = [];
 haxe_Serializer.USE_CACHE = false;
 haxe_Serializer.USE_ENUM_INDEX = false;
 haxe_Serializer.BASE64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789%:";
@@ -79173,6 +80489,7 @@ vision_ds_Color.COLOR_REGEX = new EReg("^(0x|#)(([A-F0-9]{2}){3,4})$","i");
 ApplicationMain.main();
 })(typeof exports != "undefined" ? exports : typeof window != "undefined" ? window : typeof self != "undefined" ? self : this, typeof window != "undefined" ? window : typeof global != "undefined" ? global : typeof self != "undefined" ? self : this);
 
+//# sourceMappingURL=LittleDemo.js.map
 });
 $hx_exports.lime = $hx_exports.lime || {};
 $hx_exports.lime.$scripts = $hx_exports.lime.$scripts || {};
