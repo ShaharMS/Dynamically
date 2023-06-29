@@ -39,12 +39,6 @@ class Drawer {
         }
 
         for (j in Joint.all) {
-			var g = j.graphics;
-			g.lineStyle(2, Color.JET_BLACK);
-			g.beginFill(Color.WHITE);
-			g.drawCircle(0, 0, 7);
-			g.endFill();
-            
             Lib.current.addChild(j);
         }
 
