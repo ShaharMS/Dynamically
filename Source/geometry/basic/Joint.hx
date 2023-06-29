@@ -1,8 +1,9 @@
 package geometry.basic;
 
 import openfl.display.Sprite;
+import vision.ds.Color;
 
-class Joint extends Sprite {
+class Joint extends DraggableSprite implements IDrawable {
     
     public static var all:Array<Joint> = [];
 
@@ -10,8 +11,11 @@ class Joint extends Sprite {
 
     public var connections:Array<Connection> = [];
 
-    public var outlineColor:Color = Color.JET_BLACK;
-    public var fillColor:Color = Color.WHITE;
+    public var outlineColor(default, set):Color = Color.JET_BLACK;
+    public var fillColor(default, set):Color = Color.WHITE;
+
+    function set_outlineColor(c:Color) {outlineColor = c; draw(); return outlineColor;}
+    function set_fillColor(c:Color) {outlineColor = c; draw(); return fillColor;}
 
     public function new(x:Float, y:Float, letter:String) {
 
@@ -20,27 +24,40 @@ class Joint extends Sprite {
         this.y = y;
         id = letter;
 
-		graphics.lineStyle(2, outlineColor);
-		graphics.beginFill(fillColor);
-		graphics.drawCircle(0, 0, 7);
-		graphics.endFill();
+        mouseEnabled = true;
+        mouseChildren = true;
+
+        onMoved[0] = (_, _) -> {
+            for (c in connections) c.draw();
+        }
+
+        draw();
 
         all.push(this);
     }
 
+    public function draw() {
+		graphics.clear();
+		graphics.lineStyle(2, outlineColor);
+		graphics.beginFill(fillColor);
+		graphics.drawCircle(0, 0, 7);
+		graphics.endFill();
+    }
+
     public function connect(joint:Joint, ?connectionText:String):Joint {
-        connections.push(new Connection(this, joint, connectionText));
-		joint.connections.push(new Connection(joint, this, connectionText));
+		var connection = new Connection(this, joint, connectionText);
+        connections.push(connection);
+		joint.connections.push(connection);
         return this;
     }
 
     public function disconnect(joint:Joint):Joint {
         for (c in this.connections) {
-            if (c.from == this && c.to == joint || c.from == joint && c.to == this) this.connections.remove(c);
+            if (c.joint1 == this && c.joint2 == joint || c.joint1 == joint && c.joint2 == this) this.connections.remove(c);
         }
 
         for (c in joint.connections) {
-            if (c.from == this && c.to == joint || c.from == joint && c.to == this) joint.connections.remove(c);
+            if (c.joint1 == this && c.joint2 == joint || c.joint1 == joint && c.joint2 == this) joint.connections.remove(c);
         }
         return this;
     }

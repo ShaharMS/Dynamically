@@ -20,17 +20,12 @@ class Drawer {
         var conns:Map<String, Connection> = [];
         for (j in Joint.all) {
             for (c in j.connections) {
-                if (conns.exists(c.from.id + c.to.id) || conns.exists(c.to.id + c.from.id)) continue;
-				conns[c.from.id + c.to.id] = c;
+                if (conns.exists(c.joint1.id + c.joint2.id) || conns.exists(c.joint2.id + c.joint1.id)) continue;
+				conns[c.joint1.id + c.joint2.id] = c;
             }
         }
 
 		for (k => v in conns) {
-			var g = v.graphics;
-			g.lineStyle(2, Color.JET_BLACK);
-			g.moveTo(v.from.x, v.from.y);
-			g.lineTo(v.to.x, v.to.y);
-
 			Lib.current.addChild(v);
 		}
 
