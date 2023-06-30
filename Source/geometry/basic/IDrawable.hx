@@ -1,5 +1,7 @@
 package geometry.basic;
 
 interface IDrawable {
-    public function draw():Void;
+    public function redraw():Void;
+
+    public function reposition():Void;
 }

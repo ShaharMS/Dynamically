@@ -14,8 +14,8 @@ class Joint extends DraggableSprite implements IDrawable {
     public var outlineColor(default, set):Color = Color.JET_BLACK;
     public var fillColor(default, set):Color = Color.WHITE;
 
-    function set_outlineColor(c:Color) {outlineColor = c; draw(); return outlineColor;}
-    function set_fillColor(c:Color) {outlineColor = c; draw(); return fillColor;}
+    function set_outlineColor(c:Color) {outlineColor = c; redraw(); return outlineColor;}
+    function set_fillColor(c:Color) {outlineColor = c; redraw(); return fillColor;}
 
     public function new(x:Float, y:Float, letter:String) {
 
@@ -27,21 +27,32 @@ class Joint extends DraggableSprite implements IDrawable {
         mouseEnabled = true;
         mouseChildren = true;
 
-        onMoved[0] = (_, _) -> {
-            for (c in connections) c.draw();
+        onMoved[0] = (_, _, _, _) -> {
+            for (c in connections) {
+                c.redraw();
+            }
+        }
+        onDragged[0] = (_, _, _, _) -> {
+			for (c in connections) {
+				c.reposition();
+			}
         }
 
-        draw();
+        redraw();
 
         all.push(this);
     }
 
-    public function draw() {
+    public function redraw() {
 		graphics.clear();
 		graphics.lineStyle(2, outlineColor);
 		graphics.beginFill(fillColor);
 		graphics.drawCircle(0, 0, 7);
 		graphics.endFill();
+    }
+
+    public function reposition() {
+        
     }
 
     public function connect(joint:Joint, ?connectionText:String):Joint {

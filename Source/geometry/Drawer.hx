@@ -30,7 +30,7 @@ class Drawer {
 		}
 
         for (e in EllipseBase.all) {
-            Lib.current.addChild(e.ringGraphic);
+            Lib.current.addChild(e);
         }
 
         for (j in Joint.all) {

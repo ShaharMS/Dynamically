@@ -886,14 +886,14 @@ var ApplicationMain = function() { };
 $hxClasses["ApplicationMain"] = ApplicationMain;
 ApplicationMain.__name__ = "ApplicationMain";
 ApplicationMain.main = function() {
-	lime_system_System.__registerEntryPoint("LittleDemo",ApplicationMain.create);
+	lime_system_System.__registerEntryPoint("DynamicallyDemo",ApplicationMain.create);
 };
 ApplicationMain.create = function(config) {
 	var app = new openfl_display_Application();
 	ManifestResources.init(config);
 	app.meta.h["build"] = "7";
 	app.meta.h["company"] = "Company Name";
-	app.meta.h["file"] = "LittleDemo";
+	app.meta.h["file"] = "DynamicallyDemo";
 	app.meta.h["name"] = "Dynamically";
 	app.meta.h["packageName"] = "com.sample.dynamically";
 	app.meta.h["version"] = "1.0.0";
@@ -3925,51 +3925,25 @@ geometry_Drawer.draw = function() {
 		openfl_Lib.get_current().addChild(j);
 	}
 };
-var geometry_basic_IDrawable = function() { };
-$hxClasses["geometry.basic.IDrawable"] = geometry_basic_IDrawable;
-geometry_basic_IDrawable.__name__ = "geometry.basic.IDrawable";
-geometry_basic_IDrawable.__isInterface__ = true;
-geometry_basic_IDrawable.prototype = {
-	__class__: geometry_basic_IDrawable
-};
-var geometry_basic_Connection = function(f,t,text) {
-	this.outlineColor = -15856112;
-	openfl_display_Sprite.call(this);
-	this.joint1 = f;
-	this.joint2 = t;
-	this.text = text;
-	this.draw();
-};
-$hxClasses["geometry.basic.Connection"] = geometry_basic_Connection;
-geometry_basic_Connection.__name__ = "geometry.basic.Connection";
-geometry_basic_Connection.__interfaces__ = [geometry_basic_IDrawable];
-geometry_basic_Connection.__super__ = openfl_display_Sprite;
-geometry_basic_Connection.prototype = $extend(openfl_display_Sprite.prototype,{
-	set_outlineColor: function(c) {
-		this.outlineColor = c;
-		this.draw();
-		return this.outlineColor;
-	}
-	,draw: function() {
-		this.get_graphics().clear();
-		this.get_graphics().lineStyle(2,this.outlineColor);
-		this.get_graphics().moveTo(this.joint1.get_x(),this.joint1.get_y());
-		this.get_graphics().lineTo(this.joint2.get_x(),this.joint2.get_y());
-	}
-	,__class__: geometry_basic_Connection
-	,__properties__: $extend(openfl_display_Sprite.prototype.__properties__,{set_outlineColor:"set_outlineColor"})
-});
 var geometry_basic_DraggableSprite = function() {
 	this.onMoved = [];
 	this.onDragged = [];
 	openfl_display_Sprite.call(this);
 	this.addEventListener("mouseDown",$bind(this,this.registerDrag));
+	this.addEventListener("mouseOver",$bind(this,this.onMouseOver));
+	this.addEventListener("mouseOut",$bind(this,this.onMouseOut));
 };
 $hxClasses["geometry.basic.DraggableSprite"] = geometry_basic_DraggableSprite;
 geometry_basic_DraggableSprite.__name__ = "geometry.basic.DraggableSprite";
 geometry_basic_DraggableSprite.__super__ = openfl_display_Sprite;
 geometry_basic_DraggableSprite.prototype = $extend(openfl_display_Sprite.prototype,{
-	setPrevDimensions: function() {
+	onMouseOver: function(e) {
+		openfl_ui_Mouse.set_cursor("hand");
+	}
+	,onMouseOut: function(e) {
+		openfl_ui_Mouse.set_cursor(openfl_ui_MouseCursor.fromLimeCursor(lime_ui_MouseCursor.DEFAULT));
+	}
+	,setPrevDimensions: function() {
 		this.prevX = this.get_x();
 		this.prevY = this.get_y();
 	}
@@ -4012,6 +3986,86 @@ geometry_basic_DraggableSprite.prototype = $extend(openfl_display_Sprite.prototy
 	}
 	,__class__: geometry_basic_DraggableSprite
 });
+var geometry_basic_IDrawable = function() { };
+$hxClasses["geometry.basic.IDrawable"] = geometry_basic_IDrawable;
+geometry_basic_IDrawable.__name__ = "geometry.basic.IDrawable";
+geometry_basic_IDrawable.__isInterface__ = true;
+geometry_basic_IDrawable.prototype = {
+	__class__: geometry_basic_IDrawable
+};
+var geometry_basic_Connection = function(f,t,text) {
+	this.outlineColor = -15856112;
+	var _gthis = this;
+	geometry_basic_DraggableSprite.call(this);
+	this.joint1 = f;
+	this.joint2 = t;
+	this.org1X = f.get_x();
+	this.org1Y = f.get_y();
+	this.org2X = t.get_x();
+	this.org2Y = t.get_y();
+	this.text = text;
+	this.onMoved.push(function(x,y,mx,my) {
+		_gthis.joint1.set_x(_gthis.org1X + x);
+		_gthis.joint2.set_x(_gthis.org2X + x);
+		_gthis.joint1.set_y(_gthis.org1Y + y);
+		_gthis.joint2.set_y(_gthis.org2Y + y);
+		_gthis.set_x(0);
+		_gthis.set_y(0);
+		_gthis.joint1.onMoved[0](0,0,0,0);
+		_gthis.joint2.onMoved[0](0,0,0,0);
+		_gthis.redraw();
+	});
+	this.onDragged.push(function(x,y,px,py) {
+		_gthis.reposition();
+	});
+	this.redraw();
+};
+$hxClasses["geometry.basic.Connection"] = geometry_basic_Connection;
+geometry_basic_Connection.__name__ = "geometry.basic.Connection";
+geometry_basic_Connection.__interfaces__ = [geometry_basic_IDrawable];
+geometry_basic_Connection.__super__ = geometry_basic_DraggableSprite;
+geometry_basic_Connection.prototype = $extend(geometry_basic_DraggableSprite.prototype,{
+	set_outlineColor: function(c) {
+		this.outlineColor = c;
+		this.redraw();
+		return this.outlineColor;
+	}
+	,redraw: function() {
+		this.get_graphics().clear();
+		this.get_graphics().lineStyle(2,this.outlineColor);
+		this.get_graphics().moveTo(this.joint1.get_x(),this.joint1.get_y());
+		this.get_graphics().lineTo(this.joint2.get_x(),this.joint2.get_y());
+		this.get_graphics().lineStyle(10,0,0.01);
+		this.get_graphics().moveTo(this.joint1.get_x(),this.joint1.get_y());
+		this.get_graphics().lineTo(this.joint2.get_x(),this.joint2.get_y());
+	}
+	,reposition: function() {
+		this.org1X = this.joint1.get_x();
+		this.org1Y = this.joint1.get_y();
+		this.org2X = this.joint2.get_x();
+		this.org2Y = this.joint2.get_y();
+		HxOverrides.remove(this.joint1.connections,this);
+		var _g = 0;
+		var _g1 = this.joint1.connections;
+		while(_g < _g1.length) {
+			var c = _g1[_g];
+			++_g;
+			c.reposition();
+		}
+		this.joint1.connections.push(this);
+		HxOverrides.remove(this.joint2.connections,this);
+		var _g = 0;
+		var _g1 = this.joint2.connections;
+		while(_g < _g1.length) {
+			var c = _g1[_g];
+			++_g;
+			c.reposition();
+		}
+		this.joint2.connections.push(this);
+	}
+	,__class__: geometry_basic_Connection
+	,__properties__: $extend(geometry_basic_DraggableSprite.prototype.__properties__,{set_outlineColor:"set_outlineColor"})
+});
 var geometry_basic_EllipseBase = function(f1,f2,radius) {
 	this.ringGraphic = new geometry_basic_DraggableSprite();
 	this.onOutlineJoints = [];
@@ -4022,13 +4076,70 @@ var geometry_basic_EllipseBase = function(f1,f2,radius) {
 	this.set_distanceSum(radius);
 	geometry_basic_EllipseBase.all.push(this);
 	this.focal1.onMoved.push(function(_,_1,_2,_3) {
-		_gthis.draw();
+		_gthis.redraw();
 	});
 	this.focal2.onMoved.push(function(_,_1,_2,_3) {
-		_gthis.draw();
+		_gthis.redraw();
+	});
+	this.focal1.onDragged.push(function(_,_1,_2,_3) {
+		_gthis.reposition();
+	});
+	this.focal2.onDragged.push(function(_,_1,_2,_3) {
+		_gthis.reposition();
+	});
+	this.ringGraphic.onMoved.push(function(x,y,mx,my) {
+		_gthis.ringGraphic.set_x(0);
+		_gthis.ringGraphic.set_y(0);
+		var _gthis1 = _gthis;
+		var x = _gthis.focal1.get_x();
+		var y = _gthis.focal1.get_y();
+		if(y == null) {
+			y = 0;
+		}
+		if(x == null) {
+			x = 0;
+		}
+		var _this_x = x;
+		var _this_y = y;
+		var x = mx;
+		var y = my;
+		if(y == null) {
+			y = 0;
+		}
+		if(x == null) {
+			x = 0;
+		}
+		var point_x = x;
+		var point_y = y;
+		var x = point_x - _this_x;
+		var y = point_y - _this_y;
+		var tmp = Math.sqrt(x * x + y * y);
+		var x = _gthis.focal2.get_x();
+		var y = _gthis.focal2.get_y();
+		if(y == null) {
+			y = 0;
+		}
+		if(x == null) {
+			x = 0;
+		}
+		var _this_x = x;
+		var _this_y = y;
+		var x = mx;
+		var y = my;
+		if(y == null) {
+			y = 0;
+		}
+		if(x == null) {
+			x = 0;
+		}
+		var point_x = x;
+		var point_y = y;
+		var x = point_x - _this_x;
+		var y = point_y - _this_y;
+		_gthis1.set_distanceSum(tmp + Math.sqrt(x * x + y * y));
 	});
 	this.addChild(this.ringGraphic);
-	this.draw();
+	this.redraw();
 };
 $hxClasses["geometry.basic.EllipseBase"] = geometry_basic_EllipseBase;
 geometry_basic_EllipseBase.__name__ = "geometry.basic.EllipseBase";
@@ -4037,66 +4148,19 @@ geometry_basic_EllipseBase.__super__ = openfl_display_Sprite;
 geometry_basic_EllipseBase.prototype = $extend(openfl_display_Sprite.prototype,{
 	set_distanceSum: function(d) {
 		this.distanceSum = d;
-		this.draw();
+		this.redraw();
 		return this.distanceSum;
 	}
-	,draw: function() {
-		var _gthis = this;
+	,redraw: function() {
+		haxe_Log.trace("draw ring",{ fileName : "Source/geometry/basic/EllipseBase.hx", lineNumber : 48, className : "geometry.basic.EllipseBase", methodName : "redraw"});
 		this.ringGraphic.get_graphics().clear();
 		var info = this.convertFocalsToEllipse(this.focal1.get_x(),this.focal1.get_y(),this.focal2.get_x(),this.focal2.get_y());
 		this.ringGraphic.get_graphics().lineStyle(2,-15856112);
 		this.ringGraphic.get_graphics().drawEllipse(info.x,info.y,info.width,info.height);
-		this.ringGraphic.onMoved.push(function(x,y,mx,my) {
-			_gthis.ringGraphic.set_x(0);
-			_gthis.ringGraphic.set_y(0);
-			var _gthis1 = _gthis;
-			var x = _gthis.focal1.get_x();
-			var y = _gthis.focal1.get_y();
-			if(y == null) {
-				y = 0;
-			}
-			if(x == null) {
-				x = 0;
-			}
-			var _this_x = x;
-			var _this_y = y;
-			var x = mx;
-			var y = my;
-			if(y == null) {
-				y = 0;
-			}
-			if(x == null) {
-				x = 0;
-			}
-			var point_x = x;
-			var point_y = y;
-			var x = point_x - _this_x;
-			var y = point_y - _this_y;
-			var tmp = Math.sqrt(x * x + y * y);
-			var x = _gthis.focal2.get_x();
-			var y = _gthis.focal2.get_y();
-			if(y == null) {
-				y = 0;
-			}
-			if(x == null) {
-				x = 0;
-			}
-			var _this_x = x;
-			var _this_y = y;
-			var x = mx;
-			var y = my;
-			if(y == null) {
-				y = 0;
-			}
-			if(x == null) {
-				x = 0;
-			}
-			var point_x = x;
-			var point_y = y;
-			var x = point_x - _this_x;
-			var y = point_y - _this_y;
-			_gthis1.set_distanceSum(tmp + Math.sqrt(x * x + y * y));
-		});
+		this.get_graphics().lineStyle(10,0,0.01);
+		this.ringGraphic.get_graphics().drawEllipse(info.x,info.y,info.width,info.height);
+	}
+	,reposition: function() {
 	}
 	,convertFocalsToEllipse: function(focus1X,focus1Y,focus2X,focus2Y) {
 		var distance = Math.sqrt(Math.pow(focus2X - focus1X,2) + Math.pow(focus2Y - focus1Y,2));
@@ -4129,10 +4193,19 @@ var geometry_basic_Joint = function(x,y,letter) {
 		while(_g < _g1.length) {
 			var c = _g1[_g];
 			++_g;
-			c.draw();
+			c.redraw();
 		}
 	};
-	this.draw();
+	this.onDragged[0] = function(_,_1,_2,_3) {
+		var _g = 0;
+		var _g1 = _gthis.connections;
+		while(_g < _g1.length) {
+			var c = _g1[_g];
+			++_g;
+			c.reposition();
+		}
+	};
+	this.redraw();
 	geometry_basic_Joint.all.push(this);
 };
 $hxClasses["geometry.basic.Joint"] = geometry_basic_Joint;
@@ -4142,20 +4215,22 @@ geometry_basic_Joint.__super__ = geometry_basic_DraggableSprite;
 geometry_basic_Joint.prototype = $extend(geometry_basic_DraggableSprite.prototype,{
 	set_outlineColor: function(c) {
 		this.outlineColor = c;
-		this.draw();
+		this.redraw();
 		return this.outlineColor;
 	}
 	,set_fillColor: function(c) {
 		this.set_outlineColor(c);
-		this.draw();
+		this.redraw();
 		return this.fillColor;
 	}
-	,draw: function() {
+	,redraw: function() {
 		this.get_graphics().clear();
 		this.get_graphics().lineStyle(2,this.outlineColor);
 		this.get_graphics().beginFill(this.fillColor);
 		this.get_graphics().drawCircle(0,0,7);
 		this.get_graphics().endFill();
+	}
+	,reposition: function() {
 	}
 	,connect: function(joint,connectionText) {
 		var connection = new geometry_basic_Connection(this,joint,connectionText);
@@ -23082,7 +23157,7 @@ var lime_utils_AssetCache = function() {
 	this.audio = new haxe_ds_StringMap();
 	this.font = new haxe_ds_StringMap();
 	this.image = new haxe_ds_StringMap();
-	this.version = 222252;
+	this.version = 289253;
 };
 $hxClasses["lime.utils.AssetCache"] = lime_utils_AssetCache;
 lime_utils_AssetCache.__name__ = "lime.utils.AssetCache";
@@ -80681,11 +80756,11 @@ vision_ds_Color.COLOR_REGEX = new EReg("^(0x|#)(([A-F0-9]{2}){3,4})$","i");
 ApplicationMain.main();
 })(typeof exports != "undefined" ? exports : typeof window != "undefined" ? window : typeof self != "undefined" ? self : this, typeof window != "undefined" ? window : typeof global != "undefined" ? global : typeof self != "undefined" ? self : this);
 
-//# sourceMappingURL=LittleDemo.js.map
+//# sourceMappingURL=DynamicallyDemo.js.map
 });
 $hx_exports.lime = $hx_exports.lime || {};
 $hx_exports.lime.$scripts = $hx_exports.lime.$scripts || {};
-$hx_exports.lime.$scripts["LittleDemo"] = $hx_script;
+$hx_exports.lime.$scripts["DynamicallyDemo"] = $hx_script;
 $hx_exports.lime.embed = function(projectName) { var exports = {};
 	var script = $hx_exports.lime.$scripts[projectName];
 	if (!script) throw Error("Cannot find project name \"" + projectName + "\"");

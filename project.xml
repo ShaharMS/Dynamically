@@ -4,8 +4,8 @@
 	
 	
 	<meta title="Dynamically" package="com.sample.dynamically" version="1.0.0" company="Company Name" />
-	<app main="Main" path="Export" file="LittleDemo"/>
-	<window width="608" height="750" background=""/>
+	<app main="Main" path="Export" file="DynamicallyDemo"/>
+	<window background=""/>
 	
 	<source path="Source" />
 	
@@ -13,5 +13,5 @@
 	<haxelib name="vision" />
 	
 	<assets path="Assets" rename="assets" />
-	
+	<haxedef name="no-deprecation-warnings"/>
 </project>

@@ -1,5 +1,7 @@
 package geometry.basic;
 
+import lime.ui.MouseCursor;
+import openfl.ui.Mouse;
 import openfl.display.Sprite;
 
 class DraggableSprite extends Sprite {
@@ -10,21 +12,33 @@ class DraggableSprite extends Sprite {
 		object.onDragged[i] = function (x:Float, y:Float, previousX:Float, previousY:Float) {}
 		```
 	**/
-	public var onDragged:Array<(Float, Float, Float, Float) -> Void> = [];
+	public var onDragged:Array<(x:Float, y:Float, px:Float, py:Float) -> Void> = [];
 
 	/**
 		this callback's arguments:
 		```haxe
-		object.onMoved[i] = function (x:Float, y:Float) {}
+		object.onMoved[i] = function (x:Float, y:Float, mouseX:Float, mouseY:Float) {}
 		```
+
+		onMoved[0] is reserved to the actualy movement.
 	**/
-	public var onMoved:Array<(Float, Float) -> Void> = [];
+	public var onMoved:Array<(x:Float, y:Float, mx:Float, my:Float) -> Void> = [];
 
 	
 
 	public function new() {
 		super();
 		addEventListener(MouseEvent.MOUSE_DOWN, registerDrag);
+		addEventListener(MouseEvent.MOUSE_OVER, onMouseOver);
+		addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
+	}
+	
+	function onMouseOver(e:MouseEvent) {
+		Mouse.cursor = openfl.ui.MouseCursor.HAND;
+	}
+
+	function onMouseOut(e:MouseEvent) {
+		Mouse.cursor = MouseCursor.DEFAULT;
 	}
 
 	var pX:Float;
@@ -42,7 +56,6 @@ class DraggableSprite extends Sprite {
 	}
 
 	function registerDrag(e:MouseEvent) {
-		trace("registered");
 		offsetX = parent.mouseX - x;
 		offsetY = parent.mouseY - y;
 		pX = x;
@@ -56,7 +69,7 @@ class DraggableSprite extends Sprite {
 		var local = parent.globalToLocal(new Point(e.stageX - offsetX, e.stageY - offsetY));
 		this.x = local.x;
 		this.y = local.y;
-		for (move in onMoved) move(this.x, this.y);
+		for (move in onMoved) move(local.x, local.y, e.stageX, e.stageY);
 	}
 
 	function unregisterDrag(e:MouseEvent) {
