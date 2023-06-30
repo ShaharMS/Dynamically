@@ -891,7 +891,7 @@ ApplicationMain.main = function() {
 ApplicationMain.create = function(config) {
 	var app = new openfl_display_Application();
 	ManifestResources.init(config);
-	app.meta.h["build"] = "8";
+	app.meta.h["build"] = "9";
 	app.meta.h["company"] = "Company Name";
 	app.meta.h["file"] = "DynamicallyDemo";
 	app.meta.h["name"] = "Dynamically";
@@ -3335,6 +3335,9 @@ openfl_display_Sprite.prototype = $extend(openfl_display_DisplayObjectContainer.
 });
 var Main = function() {
 	openfl_display_Sprite.call(this);
+	window.document.addEventListener("contextmenu",function(event) {
+		event.preventDefault();
+	});
 	var _this = new geometry_basic_Joint(30,30,"A");
 	var _g_current = 0;
 	var _g_args = [new geometry_basic_Joint(130,30,"B")];
@@ -23237,7 +23240,7 @@ var lime_utils_AssetCache = function() {
 	this.audio = new haxe_ds_StringMap();
 	this.font = new haxe_ds_StringMap();
 	this.image = new haxe_ds_StringMap();
-	this.version = 513697;
+	this.version = 783864;
 };
 $hxClasses["lime.utils.AssetCache"] = lime_utils_AssetCache;
 lime_utils_AssetCache.__name__ = "lime.utils.AssetCache";

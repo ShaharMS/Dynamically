@@ -1,5 +1,6 @@
 package;
 
+import js.Browser;
 import geometry.shapes.Triangle;
 import geometry.basic.EllipseBase;
 import geometry.basic.Joint;
@@ -16,6 +17,13 @@ class Main extends Sprite
 	public function new()
 	{
 		super();
+
+		#if js
+		Browser.document.addEventListener("contextmenu", function(event) {
+			event.preventDefault(); // Prevent the default context menu
+		});
+		#end
+
 		var j = new Joint(30, 30, "A").connect(new Joint(130, 30, "B")).connect(new Joint(120, 60, "C"));
 		var c = new EllipseBase(new Joint(250, 250, "D"), new Joint(350, 250, "E"), 150);
 		var c2 = new EllipseBase(new Joint(400, 400, "F"), new Joint(400, 400, "F"), 100);
