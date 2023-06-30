@@ -891,7 +891,7 @@ ApplicationMain.main = function() {
 ApplicationMain.create = function(config) {
 	var app = new openfl_display_Application();
 	ManifestResources.init(config);
-	app.meta.h["build"] = "7";
+	app.meta.h["build"] = "8";
 	app.meta.h["company"] = "Company Name";
 	app.meta.h["file"] = "DynamicallyDemo";
 	app.meta.h["name"] = "Dynamically";
@@ -3335,9 +3335,52 @@ openfl_display_Sprite.prototype = $extend(openfl_display_DisplayObjectContainer.
 });
 var Main = function() {
 	openfl_display_Sprite.call(this);
-	var j = new geometry_basic_Joint(30,30,"A").connect(new geometry_basic_Joint(130,30,"B")).connect(new geometry_basic_Joint(120,60,"C"));
+	var _this = new geometry_basic_Joint(30,30,"A");
+	var _g_current = 0;
+	var _g_args = [new geometry_basic_Joint(130,30,"B")];
+	while(_g_current < _g_args.length) {
+		var joint = _g_args[_g_current++];
+		var doNothing = false;
+		var _g = 0;
+		var _g1 = _this.connections.concat(joint.connections);
+		while(_g < _g1.length) {
+			var c = _g1[_g];
+			++_g;
+			if(c.joint1 == _this && c.joint2 == joint || c.joint2 == _this && c.joint1 == joint) {
+				doNothing = true;
+			}
+		}
+		if(!doNothing) {
+			var connection = new geometry_basic_Connection(_this,joint);
+			_this.connections.push(connection);
+			joint.connections.push(connection);
+		}
+	}
+	var _this1 = _this;
+	var _g_current = 0;
+	var _g_args = [new geometry_basic_Joint(120,60,"C")];
+	while(_g_current < _g_args.length) {
+		var joint = _g_args[_g_current++];
+		var doNothing = false;
+		var _g = 0;
+		var _g1 = _this1.connections.concat(joint.connections);
+		while(_g < _g1.length) {
+			var c = _g1[_g];
+			++_g;
+			if(c.joint1 == _this1 && c.joint2 == joint || c.joint2 == _this1 && c.joint1 == joint) {
+				doNothing = true;
+			}
+		}
+		if(!doNothing) {
+			var connection = new geometry_basic_Connection(_this1,joint);
+			_this1.connections.push(connection);
+			joint.connections.push(connection);
+		}
+	}
+	var j = _this1;
 	var c = new geometry_basic_EllipseBase(new geometry_basic_Joint(250,250,"D"),new geometry_basic_Joint(350,250,"E"),150);
 	var c2 = new geometry_basic_EllipseBase(new geometry_basic_Joint(400,400,"F"),new geometry_basic_Joint(400,400,"F"),100);
+	var t = new geometry_shapes_Triangle(new geometry_basic_Joint(20,80,"G"),new geometry_basic_Joint(50,85,"H"),new geometry_basic_Joint(60,120,"I"));
 	geometry_Drawer.draw();
 };
 $hxClasses["Main"] = Main;
@@ -4016,8 +4059,15 @@ var geometry_basic_Connection = function(f,t,text) {
 		_gthis.redraw();
 	});
 	this.onDragged.push(function(x,y,px,py) {
-		_gthis.reposition();
+		var _g = 0;
+		var _g1 = geometry_basic_Connection.all;
+		while(_g < _g1.length) {
+			var c = _g1[_g];
+			++_g;
+			c.reposition();
+		}
 	});
+	geometry_basic_Connection.all.push(this);
 	this.redraw();
 };
 $hxClasses["geometry.basic.Connection"] = geometry_basic_Connection;
@@ -4044,24 +4094,6 @@ geometry_basic_Connection.prototype = $extend(geometry_basic_DraggableSprite.pro
 		this.org1Y = this.joint1.get_y();
 		this.org2X = this.joint2.get_x();
 		this.org2Y = this.joint2.get_y();
-		HxOverrides.remove(this.joint1.connections,this);
-		var _g = 0;
-		var _g1 = this.joint1.connections;
-		while(_g < _g1.length) {
-			var c = _g1[_g];
-			++_g;
-			c.reposition();
-		}
-		this.joint1.connections.push(this);
-		HxOverrides.remove(this.joint2.connections,this);
-		var _g = 0;
-		var _g1 = this.joint2.connections;
-		while(_g < _g1.length) {
-			var c = _g1[_g];
-			++_g;
-			c.reposition();
-		}
-		this.joint2.connections.push(this);
 	}
 	,__class__: geometry_basic_Connection
 	,__properties__: $extend(geometry_basic_DraggableSprite.prototype.__properties__,{set_outlineColor:"set_outlineColor"})
@@ -4180,7 +4212,6 @@ var geometry_basic_Joint = function(x,y,letter) {
 	this.outlineColor = -15856112;
 	this.connections = [];
 	this.id = "";
-	var _gthis = this;
 	geometry_basic_DraggableSprite.call(this);
 	this.set_x(x);
 	this.set_y(y);
@@ -4189,7 +4220,7 @@ var geometry_basic_Joint = function(x,y,letter) {
 	this.mouseChildren = true;
 	this.onMoved[0] = function(_,_1,_2,_3) {
 		var _g = 0;
-		var _g1 = _gthis.connections;
+		var _g1 = geometry_basic_Connection.all;
 		while(_g < _g1.length) {
 			var c = _g1[_g];
 			++_g;
@@ -4198,7 +4229,7 @@ var geometry_basic_Joint = function(x,y,letter) {
 	};
 	this.onDragged[0] = function(_,_1,_2,_3) {
 		var _g = 0;
-		var _g1 = _gthis.connections;
+		var _g1 = geometry_basic_Connection.all;
 		while(_g < _g1.length) {
 			var c = _g1[_g];
 			++_g;
@@ -4232,12 +4263,6 @@ geometry_basic_Joint.prototype = $extend(geometry_basic_DraggableSprite.prototyp
 	}
 	,reposition: function() {
 	}
-	,connect: function(joint,connectionText) {
-		var connection = new geometry_basic_Connection(this,joint,connectionText);
-		this.connections.push(connection);
-		joint.connections.push(connection);
-		return this;
-	}
 	,disconnect: function(joint) {
 		var _g = 0;
 		var _g1 = this.connections;
@@ -4261,6 +4286,61 @@ geometry_basic_Joint.prototype = $extend(geometry_basic_DraggableSprite.prototyp
 	}
 	,__class__: geometry_basic_Joint
 	,__properties__: $extend(geometry_basic_DraggableSprite.prototype.__properties__,{set_fillColor:"set_fillColor",set_outlineColor:"set_outlineColor"})
+});
+var geometry_shapes_Triangle = function(j1,j2,j3) {
+	this.type = 3;
+	geometry_basic_DraggableSprite.call(this);
+	this.joint1 = j1;
+	this.joint2 = j2;
+	this.joint3 = j3;
+	var _this = this.joint1;
+	var _g_current = 0;
+	var _g_args = [this.joint2,this.joint3];
+	while(_g_current < _g_args.length) {
+		var joint = _g_args[_g_current++];
+		var doNothing = false;
+		var _g = 0;
+		var _g1 = _this.connections.concat(joint.connections);
+		while(_g < _g1.length) {
+			var c = _g1[_g];
+			++_g;
+			if(c.joint1 == _this && c.joint2 == joint || c.joint2 == _this && c.joint1 == joint) {
+				doNothing = true;
+			}
+		}
+		if(!doNothing) {
+			var connection = new geometry_basic_Connection(_this,joint);
+			_this.connections.push(connection);
+			joint.connections.push(connection);
+		}
+	}
+	var _this = this.joint2;
+	var _g_current = 0;
+	var _g_args = [this.joint3];
+	while(_g_current < _g_args.length) {
+		var joint = _g_args[_g_current++];
+		var doNothing = false;
+		var _g = 0;
+		var _g1 = _this.connections.concat(joint.connections);
+		while(_g < _g1.length) {
+			var c = _g1[_g];
+			++_g;
+			if(c.joint1 == _this && c.joint2 == joint || c.joint2 == _this && c.joint1 == joint) {
+				doNothing = true;
+			}
+		}
+		if(!doNothing) {
+			var connection = new geometry_basic_Connection(_this,joint);
+			_this.connections.push(connection);
+			joint.connections.push(connection);
+		}
+	}
+};
+$hxClasses["geometry.shapes.Triangle"] = geometry_shapes_Triangle;
+geometry_shapes_Triangle.__name__ = "geometry.shapes.Triangle";
+geometry_shapes_Triangle.__super__ = geometry_basic_DraggableSprite;
+geometry_shapes_Triangle.prototype = $extend(geometry_basic_DraggableSprite.prototype,{
+	__class__: geometry_shapes_Triangle
 });
 var haxe_StackItem = $hxEnums["haxe.StackItem"] = { __ename__:"haxe.StackItem",__constructs__:null
 	,CFunction: {_hx_name:"CFunction",_hx_index:0,__enum__:"haxe.StackItem",toString:$estr}
@@ -23157,7 +23237,7 @@ var lime_utils_AssetCache = function() {
 	this.audio = new haxe_ds_StringMap();
 	this.font = new haxe_ds_StringMap();
 	this.image = new haxe_ds_StringMap();
-	this.version = 289253;
+	this.version = 513697;
 };
 $hxClasses["lime.utils.AssetCache"] = lime_utils_AssetCache;
 lime_utils_AssetCache.__name__ = "lime.utils.AssetCache";
@@ -78480,6 +78560,7 @@ openfl_display_DisplayObject.__tempStack = new lime_utils_ObjectPool(function() 
 },function(stack) {
 	stack.set_length(0);
 });
+geometry_basic_Connection.all = [];
 geometry_basic_EllipseBase.all = [];
 geometry_basic_Joint.all = [];
 haxe_Serializer.USE_CACHE = false;

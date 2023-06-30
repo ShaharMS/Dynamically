@@ -4,6 +4,8 @@ import openfl.display.Sprite;
 
 class Connection extends DraggableSprite implements IDrawable {
     
+	public static var all:Array<Connection> = [];
+
     public var joint1:Joint;
     public var joint2:Joint;
 
@@ -42,8 +44,10 @@ class Connection extends DraggableSprite implements IDrawable {
 		});
 
         onDragged.push((x, y, px, py) -> {
-            reposition();
+            for (c in Connection.all) c.reposition();
         });
+
+        all.push(this);
 
         redraw();
     }
@@ -63,12 +67,5 @@ class Connection extends DraggableSprite implements IDrawable {
 		org1Y = joint1.y;
 		org2X = joint2.x;
 		org2Y = joint2.y;
-
-        joint1.connections.remove(this);
-		for (c in joint1.connections) c.reposition();
-		joint1.connections.push(this);
-		joint2.connections.remove(this);
-		for (c in joint2.connections) c.reposition();
-		joint2.connections.push(this);
     }
 }
