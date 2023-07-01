@@ -891,7 +891,7 @@ ApplicationMain.main = function() {
 ApplicationMain.create = function(config) {
 	var app = new openfl_display_Application();
 	ManifestResources.init(config);
-	app.meta.h["build"] = "9";
+	app.meta.h["build"] = "10";
 	app.meta.h["company"] = "Company Name";
 	app.meta.h["file"] = "DynamicallyDemo";
 	app.meta.h["name"] = "Dynamically";
@@ -3338,6 +3338,7 @@ var Main = function() {
 	window.document.addEventListener("contextmenu",function(event) {
 		event.preventDefault();
 	});
+	haxe_Log.trace(geometry_math_EquationInterpreter.lex("xa^2 + y^2/3 = 5"),{ fileName : "Source/Main.hx", lineNumber : 26, className : "Main", methodName : "new"});
 	var _this = new geometry_basic_Joint(30,30,"A");
 	var _g_current = 0;
 	var _g_args = [new geometry_basic_Joint(130,30,"B")];
@@ -3569,8 +3570,12 @@ ManifestResources.init = function(config) {
 	if(ManifestResources.rootPath == null) {
 		ManifestResources.rootPath = "./";
 	}
+	openfl_text_Font.registerFont(_$_$ASSET_$_$OPENFL_$_$assets_$texter_$mathtextfield_$math_$bold_$ttf);
+	openfl_text_Font.registerFont(_$_$ASSET_$_$OPENFL_$_$assets_$texter_$mathtextfield_$math_$regular_$ttf);
+	openfl_text_Font.registerFont(_$_$ASSET_$_$OPENFL_$_$assets_$texter_$texttools_$sans_$ttf);
+	openfl_text_Font.registerFont(_$_$ASSET_$_$OPENFL_$_$assets_$texter_$texttools_$serif_$ttf);
 	var bundle;
-	var data = "{\"name\":null,\"assets\":\"aoy4:pathy21:assets%2Ffolderholdery4:sizezy4:typey4:TEXTy2:idR1y7:preloadtgh\",\"rootPath\":null,\"version\":2,\"libraryArgs\":[],\"libraryType\":null}";
+	var data = "{\"name\":null,\"assets\":\"aoy4:pathy54:assets%2Ftexter%2FDynamicTextField%2FRotationJoint.pngy4:sizei498y4:typey5:IMAGEy2:idR1y7:preloadtgoR2i285096R3y4:FONTy9:classNamey50:__ASSET__assets_texter_mathtextfield_math_bold_ttfR5y47:assets%2Ftexter%2FMathTextField%2Fmath-bold.ttfR6tgoR2i291936R3R7R8y53:__ASSET__assets_texter_mathtextfield_math_regular_ttfR5y50:assets%2Ftexter%2FMathTextField%2Fmath-regular.ttfR6tgoR2i129796R3R7R8y41:__ASSET__assets_texter_texttools_sans_ttfR5y38:assets%2Ftexter%2FTextTools%2Fsans.ttfR6tgoR2i454852R3R7R8y42:__ASSET__assets_texter_texttools_serif_ttfR5y39:assets%2Ftexter%2FTextTools%2Fserif.ttfR6tgoR0y21:assets%2FfolderholderR2zR3y4:TEXTR5R17R6tgh\",\"rootPath\":null,\"version\":2,\"libraryArgs\":[],\"libraryType\":null}";
 	var manifest = lime_utils_AssetManifest.parse(data,ManifestResources.rootPath);
 	var library = lime_utils_AssetLibrary.fromManifest(manifest);
 	lime_utils_Assets.registerLibrary("default",library);
@@ -3581,6 +3586,381 @@ ManifestResources.init = function(config) {
 		ManifestResources.preloadLibraryNames.push("default");
 	}
 };
+var lime_text_Font = function(name) {
+	if(name != null) {
+		this.name = name;
+	}
+	if(!this.__init) {
+		if(this.ascender == undefined) {
+			this.ascender = 0;
+		}
+		if(this.descender == undefined) {
+			this.descender = 0;
+		}
+		if(this.height == undefined) {
+			this.height = 0;
+		}
+		if(this.numGlyphs == undefined) {
+			this.numGlyphs = 0;
+		}
+		if(this.underlinePosition == undefined) {
+			this.underlinePosition = 0;
+		}
+		if(this.underlineThickness == undefined) {
+			this.underlineThickness = 0;
+		}
+		if(this.unitsPerEM == undefined) {
+			this.unitsPerEM = 0;
+		}
+		if(this.__fontID != null) {
+			if(lime_utils_Assets.isLocal(this.__fontID)) {
+				this.__fromBytes(lime_utils_Assets.getBytes(this.__fontID));
+			}
+		} else if(this.__fontPath != null) {
+			this.__fromFile(this.__fontPath);
+		}
+	}
+};
+$hxClasses["lime.text.Font"] = lime_text_Font;
+lime_text_Font.__name__ = "lime.text.Font";
+lime_text_Font.fromBytes = function(bytes) {
+	if(bytes == null) {
+		return null;
+	}
+	var font = new lime_text_Font();
+	font.__fromBytes(bytes);
+	return font;
+};
+lime_text_Font.fromFile = function(path) {
+	if(path == null) {
+		return null;
+	}
+	var font = new lime_text_Font();
+	font.__fromFile(path);
+	return font;
+};
+lime_text_Font.loadFromBytes = function(bytes) {
+	return lime_app_Future.withValue(lime_text_Font.fromBytes(bytes));
+};
+lime_text_Font.loadFromFile = function(path) {
+	var request = new lime_net__$HTTPRequest_$lime_$text_$Font();
+	return request.load(path).then(function(font) {
+		if(font != null) {
+			return lime_app_Future.withValue(font);
+		} else {
+			return lime_app_Future.withError("");
+		}
+	});
+};
+lime_text_Font.loadFromName = function(path) {
+	var font = new lime_text_Font();
+	return font.__loadFromName(path);
+};
+lime_text_Font.__measureFontNode = function(fontFamily) {
+	var node = window.document.createElement("span");
+	node.setAttribute("aria-hidden","true");
+	var text = window.document.createTextNode("BESbswy");
+	node.appendChild(text);
+	var style = node.style;
+	style.display = "block";
+	style.position = "absolute";
+	style.top = "-9999px";
+	style.left = "-9999px";
+	style.fontSize = "300px";
+	style.width = "auto";
+	style.height = "auto";
+	style.lineHeight = "normal";
+	style.margin = "0";
+	style.padding = "0";
+	style.fontVariant = "normal";
+	style.whiteSpace = "nowrap";
+	style.fontFamily = fontFamily;
+	window.document.body.appendChild(node);
+	return node;
+};
+lime_text_Font.prototype = {
+	decompose: function() {
+		return null;
+	}
+	,getGlyph: function(character) {
+		return -1;
+	}
+	,getGlyphs: function(characters) {
+		if(characters == null) {
+			characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^`'\"/\\&*()[]{}<>|:;_-+=?,. ";
+		}
+		return null;
+	}
+	,getGlyphMetrics: function(glyph) {
+		return null;
+	}
+	,renderGlyph: function(glyph,fontSize) {
+		return null;
+	}
+	,renderGlyphs: function(glyphs,fontSize) {
+		return null;
+	}
+	,__copyFrom: function(other) {
+		if(other != null) {
+			this.ascender = other.ascender;
+			this.descender = other.descender;
+			this.height = other.height;
+			this.name = other.name;
+			this.numGlyphs = other.numGlyphs;
+			this.src = other.src;
+			this.underlinePosition = other.underlinePosition;
+			this.underlineThickness = other.underlineThickness;
+			this.unitsPerEM = other.unitsPerEM;
+			this.__fontID = other.__fontID;
+			this.__fontPath = other.__fontPath;
+			this.__init = true;
+		}
+	}
+	,__fromBytes: function(bytes) {
+		this.__fontPath = null;
+	}
+	,__fromFile: function(path) {
+		this.__fontPath = path;
+	}
+	,__initializeSource: function() {
+		this.__init = true;
+	}
+	,__loadFromName: function(name) {
+		var _gthis = this;
+		var promise = new lime_app_Promise();
+		this.name = name;
+		var userAgent = $global.navigator.userAgent.toLowerCase();
+		var isSafari = userAgent.indexOf(" safari/") >= 0 && userAgent.indexOf(" chrome/") < 0;
+		var isUIWebView = new EReg("(iPhone|iPod|iPad).*AppleWebKit(?!.*Version)","i").match(userAgent);
+		if(!isSafari && !isUIWebView && (window.document.fonts && ($_=window.document.fonts,$bind($_,$_.load)))) {
+			window.document.fonts.load("1em '" + name + "'").then(function(_) {
+				promise.complete(_gthis);
+			},function(_) {
+				lime_utils_Log.warn("Could not load web font \"" + name + "\"",{ fileName : "lime/text/Font.hx", lineNumber : 513, className : "lime.text.Font", methodName : "__loadFromName"});
+				promise.complete(_gthis);
+			});
+		} else {
+			var node1 = lime_text_Font.__measureFontNode("'" + name + "', sans-serif");
+			var node2 = lime_text_Font.__measureFontNode("'" + name + "', serif");
+			var width1 = node1.offsetWidth;
+			var width2 = node2.offsetWidth;
+			var interval = -1;
+			var timeout = 3000;
+			var intervalLength = 50;
+			var intervalCount = 0;
+			var loaded;
+			var timeExpired;
+			var checkFont = function() {
+				intervalCount += 1;
+				loaded = node1.offsetWidth != width1 || node2.offsetWidth != width2;
+				timeExpired = intervalCount * intervalLength >= timeout;
+				if(loaded || timeExpired) {
+					window.clearInterval(interval);
+					node1.parentNode.removeChild(node1);
+					node2.parentNode.removeChild(node2);
+					node1 = null;
+					node2 = null;
+					if(timeExpired) {
+						lime_utils_Log.warn("Could not load web font \"" + name + "\"",{ fileName : "lime/text/Font.hx", lineNumber : 548, className : "lime.text.Font", methodName : "__loadFromName"});
+					}
+					promise.complete(_gthis);
+				}
+			};
+			interval = window.setInterval(checkFont,intervalLength);
+		}
+		return promise.future;
+	}
+	,__setSize: function(size) {
+	}
+	,__class__: lime_text_Font
+};
+var _$_$ASSET_$_$assets_$texter_$mathtextfield_$math_$bold_$ttf = function() {
+	this.ascender = 1907;
+	this.descender = -849;
+	this.height = 2756;
+	this.numGlyphs = 682;
+	this.underlinePosition = -307;
+	this.underlineThickness = 102;
+	this.unitsPerEM = 2048;
+	this.name = "CMU Serif BoldItalic";
+	lime_text_Font.call(this);
+};
+$hxClasses["__ASSET__assets_texter_mathtextfield_math_bold_ttf"] = _$_$ASSET_$_$assets_$texter_$mathtextfield_$math_$bold_$ttf;
+$hx_exports["__ASSET__assets_texter_mathtextfield_math_bold_ttf"] = _$_$ASSET_$_$assets_$texter_$mathtextfield_$math_$bold_$ttf;
+_$_$ASSET_$_$assets_$texter_$mathtextfield_$math_$bold_$ttf.__name__ = "__ASSET__assets_texter_mathtextfield_math_bold_ttf";
+_$_$ASSET_$_$assets_$texter_$mathtextfield_$math_$bold_$ttf.__super__ = lime_text_Font;
+_$_$ASSET_$_$assets_$texter_$mathtextfield_$math_$bold_$ttf.prototype = $extend(lime_text_Font.prototype,{
+	__class__: _$_$ASSET_$_$assets_$texter_$mathtextfield_$math_$bold_$ttf
+});
+var _$_$ASSET_$_$assets_$texter_$mathtextfield_$math_$regular_$ttf = function() {
+	this.ascender = 1905;
+	this.descender = -765;
+	this.height = 2670;
+	this.numGlyphs = 682;
+	this.underlinePosition = -307;
+	this.underlineThickness = 102;
+	this.unitsPerEM = 2048;
+	this.name = "CMU Classical Serif Italic";
+	lime_text_Font.call(this);
+};
+$hxClasses["__ASSET__assets_texter_mathtextfield_math_regular_ttf"] = _$_$ASSET_$_$assets_$texter_$mathtextfield_$math_$regular_$ttf;
+$hx_exports["__ASSET__assets_texter_mathtextfield_math_regular_ttf"] = _$_$ASSET_$_$assets_$texter_$mathtextfield_$math_$regular_$ttf;
+_$_$ASSET_$_$assets_$texter_$mathtextfield_$math_$regular_$ttf.__name__ = "__ASSET__assets_texter_mathtextfield_math_regular_ttf";
+_$_$ASSET_$_$assets_$texter_$mathtextfield_$math_$regular_$ttf.__super__ = lime_text_Font;
+_$_$ASSET_$_$assets_$texter_$mathtextfield_$math_$regular_$ttf.prototype = $extend(lime_text_Font.prototype,{
+	__class__: _$_$ASSET_$_$assets_$texter_$mathtextfield_$math_$regular_$ttf
+});
+var _$_$ASSET_$_$assets_$texter_$texttools_$sans_$ttf = function() {
+	this.ascender = 2189;
+	this.descender = -600;
+	this.height = 2789;
+	this.numGlyphs = 1140;
+	this.underlinePosition = -125;
+	this.underlineThickness = 50;
+	this.unitsPerEM = 2048;
+	this.name = "Open Sans Regular";
+	lime_text_Font.call(this);
+};
+$hxClasses["__ASSET__assets_texter_texttools_sans_ttf"] = _$_$ASSET_$_$assets_$texter_$texttools_$sans_$ttf;
+$hx_exports["__ASSET__assets_texter_texttools_sans_ttf"] = _$_$ASSET_$_$assets_$texter_$texttools_$sans_$ttf;
+_$_$ASSET_$_$assets_$texter_$texttools_$sans_$ttf.__name__ = "__ASSET__assets_texter_texttools_sans_ttf";
+_$_$ASSET_$_$assets_$texter_$texttools_$sans_$ttf.__super__ = lime_text_Font;
+_$_$ASSET_$_$assets_$texter_$texttools_$sans_$ttf.prototype = $extend(lime_text_Font.prototype,{
+	__class__: _$_$ASSET_$_$assets_$texter_$texttools_$sans_$ttf
+});
+var _$_$ASSET_$_$assets_$texter_$texttools_$serif_$ttf = function() {
+	this.ascender = 1825;
+	this.descender = -443;
+	this.height = 2355;
+	this.numGlyphs = 2503;
+	this.underlinePosition = -273;
+	this.underlineThickness = 100;
+	this.unitsPerEM = 2048;
+	this.name = "Tinos Regular";
+	lime_text_Font.call(this);
+};
+$hxClasses["__ASSET__assets_texter_texttools_serif_ttf"] = _$_$ASSET_$_$assets_$texter_$texttools_$serif_$ttf;
+$hx_exports["__ASSET__assets_texter_texttools_serif_ttf"] = _$_$ASSET_$_$assets_$texter_$texttools_$serif_$ttf;
+_$_$ASSET_$_$assets_$texter_$texttools_$serif_$ttf.__name__ = "__ASSET__assets_texter_texttools_serif_ttf";
+_$_$ASSET_$_$assets_$texter_$texttools_$serif_$ttf.__super__ = lime_text_Font;
+_$_$ASSET_$_$assets_$texter_$texttools_$serif_$ttf.prototype = $extend(lime_text_Font.prototype,{
+	__class__: _$_$ASSET_$_$assets_$texter_$texttools_$serif_$ttf
+});
+var openfl_text_Font = function(name) {
+	lime_text_Font.call(this,name);
+};
+$hxClasses["openfl.text.Font"] = openfl_text_Font;
+openfl_text_Font.__name__ = "openfl.text.Font";
+openfl_text_Font.enumerateFonts = function(enumerateDeviceFonts) {
+	if(enumerateDeviceFonts == null) {
+		enumerateDeviceFonts = false;
+	}
+	return openfl_text_Font.__registeredFonts;
+};
+openfl_text_Font.fromBytes = function(bytes) {
+	var font = new openfl_text_Font();
+	font.__fromBytes(openfl_utils_ByteArray.toBytes(bytes));
+	return font;
+};
+openfl_text_Font.fromFile = function(path) {
+	var font = new openfl_text_Font();
+	font.__fromFile(path);
+	return font;
+};
+openfl_text_Font.loadFromBytes = function(bytes) {
+	return lime_text_Font.loadFromBytes(openfl_utils_ByteArray.toBytes(bytes)).then(function(limeFont) {
+		var font = new openfl_text_Font();
+		font.__fromLimeFont(limeFont);
+		return lime_app_Future.withValue(font);
+	});
+};
+openfl_text_Font.loadFromFile = function(path) {
+	return lime_text_Font.loadFromFile(path).then(function(limeFont) {
+		var font = new openfl_text_Font();
+		font.__fromLimeFont(limeFont);
+		return lime_app_Future.withValue(font);
+	});
+};
+openfl_text_Font.loadFromName = function(path) {
+	return lime_text_Font.loadFromName(path).then(function(limeFont) {
+		var font = new openfl_text_Font();
+		font.__fromLimeFont(limeFont);
+		return lime_app_Future.withValue(font);
+	});
+};
+openfl_text_Font.registerFont = function(font) {
+	var instance = null;
+	if(js_Boot.getClass(font) == null) {
+		instance = js_Boot.__cast(Type.createInstance(font,[]) , openfl_text_Font);
+	} else {
+		instance = js_Boot.__cast(font , openfl_text_Font);
+	}
+	if(instance != null) {
+		openfl_text_Font.__registeredFonts.push(instance);
+		openfl_text_Font.__fontByName.h[instance.name] = instance;
+	}
+};
+openfl_text_Font.__super__ = lime_text_Font;
+openfl_text_Font.prototype = $extend(lime_text_Font.prototype,{
+	__fromLimeFont: function(font) {
+		this.__copyFrom(font);
+	}
+	,__initialize: function() {
+		return this.__initialized;
+	}
+	,get_fontName: function() {
+		return this.name;
+	}
+	,set_fontName: function(value) {
+		return this.name = value;
+	}
+	,__class__: openfl_text_Font
+	,__properties__: {set_fontName:"set_fontName",get_fontName:"get_fontName"}
+});
+var _$_$ASSET_$_$OPENFL_$_$assets_$texter_$mathtextfield_$math_$bold_$ttf = function() {
+	this.__fromLimeFont(new _$_$ASSET_$_$assets_$texter_$mathtextfield_$math_$bold_$ttf());
+	openfl_text_Font.call(this);
+};
+$hxClasses["__ASSET__OPENFL__assets_texter_mathtextfield_math_bold_ttf"] = _$_$ASSET_$_$OPENFL_$_$assets_$texter_$mathtextfield_$math_$bold_$ttf;
+$hx_exports["__ASSET__OPENFL__assets_texter_mathtextfield_math_bold_ttf"] = _$_$ASSET_$_$OPENFL_$_$assets_$texter_$mathtextfield_$math_$bold_$ttf;
+_$_$ASSET_$_$OPENFL_$_$assets_$texter_$mathtextfield_$math_$bold_$ttf.__name__ = "__ASSET__OPENFL__assets_texter_mathtextfield_math_bold_ttf";
+_$_$ASSET_$_$OPENFL_$_$assets_$texter_$mathtextfield_$math_$bold_$ttf.__super__ = openfl_text_Font;
+_$_$ASSET_$_$OPENFL_$_$assets_$texter_$mathtextfield_$math_$bold_$ttf.prototype = $extend(openfl_text_Font.prototype,{
+	__class__: _$_$ASSET_$_$OPENFL_$_$assets_$texter_$mathtextfield_$math_$bold_$ttf
+});
+var _$_$ASSET_$_$OPENFL_$_$assets_$texter_$mathtextfield_$math_$regular_$ttf = function() {
+	this.__fromLimeFont(new _$_$ASSET_$_$assets_$texter_$mathtextfield_$math_$regular_$ttf());
+	openfl_text_Font.call(this);
+};
+$hxClasses["__ASSET__OPENFL__assets_texter_mathtextfield_math_regular_ttf"] = _$_$ASSET_$_$OPENFL_$_$assets_$texter_$mathtextfield_$math_$regular_$ttf;
+$hx_exports["__ASSET__OPENFL__assets_texter_mathtextfield_math_regular_ttf"] = _$_$ASSET_$_$OPENFL_$_$assets_$texter_$mathtextfield_$math_$regular_$ttf;
+_$_$ASSET_$_$OPENFL_$_$assets_$texter_$mathtextfield_$math_$regular_$ttf.__name__ = "__ASSET__OPENFL__assets_texter_mathtextfield_math_regular_ttf";
+_$_$ASSET_$_$OPENFL_$_$assets_$texter_$mathtextfield_$math_$regular_$ttf.__super__ = openfl_text_Font;
+_$_$ASSET_$_$OPENFL_$_$assets_$texter_$mathtextfield_$math_$regular_$ttf.prototype = $extend(openfl_text_Font.prototype,{
+	__class__: _$_$ASSET_$_$OPENFL_$_$assets_$texter_$mathtextfield_$math_$regular_$ttf
+});
+var _$_$ASSET_$_$OPENFL_$_$assets_$texter_$texttools_$sans_$ttf = function() {
+	this.__fromLimeFont(new _$_$ASSET_$_$assets_$texter_$texttools_$sans_$ttf());
+	openfl_text_Font.call(this);
+};
+$hxClasses["__ASSET__OPENFL__assets_texter_texttools_sans_ttf"] = _$_$ASSET_$_$OPENFL_$_$assets_$texter_$texttools_$sans_$ttf;
+$hx_exports["__ASSET__OPENFL__assets_texter_texttools_sans_ttf"] = _$_$ASSET_$_$OPENFL_$_$assets_$texter_$texttools_$sans_$ttf;
+_$_$ASSET_$_$OPENFL_$_$assets_$texter_$texttools_$sans_$ttf.__name__ = "__ASSET__OPENFL__assets_texter_texttools_sans_ttf";
+_$_$ASSET_$_$OPENFL_$_$assets_$texter_$texttools_$sans_$ttf.__super__ = openfl_text_Font;
+_$_$ASSET_$_$OPENFL_$_$assets_$texter_$texttools_$sans_$ttf.prototype = $extend(openfl_text_Font.prototype,{
+	__class__: _$_$ASSET_$_$OPENFL_$_$assets_$texter_$texttools_$sans_$ttf
+});
+var _$_$ASSET_$_$OPENFL_$_$assets_$texter_$texttools_$serif_$ttf = function() {
+	this.__fromLimeFont(new _$_$ASSET_$_$assets_$texter_$texttools_$serif_$ttf());
+	openfl_text_Font.call(this);
+};
+$hxClasses["__ASSET__OPENFL__assets_texter_texttools_serif_ttf"] = _$_$ASSET_$_$OPENFL_$_$assets_$texter_$texttools_$serif_$ttf;
+$hx_exports["__ASSET__OPENFL__assets_texter_texttools_serif_ttf"] = _$_$ASSET_$_$OPENFL_$_$assets_$texter_$texttools_$serif_$ttf;
+_$_$ASSET_$_$OPENFL_$_$assets_$texter_$texttools_$serif_$ttf.__name__ = "__ASSET__OPENFL__assets_texter_texttools_serif_ttf";
+_$_$ASSET_$_$OPENFL_$_$assets_$texter_$texttools_$serif_$ttf.__super__ = openfl_text_Font;
+_$_$ASSET_$_$OPENFL_$_$assets_$texter_$texttools_$serif_$ttf.prototype = $extend(openfl_text_Font.prototype,{
+	__class__: _$_$ASSET_$_$OPENFL_$_$assets_$texter_$texttools_$serif_$ttf
+});
 Math.__name__ = "Math";
 var Reflect = function() { };
 $hxClasses["Reflect"] = Reflect;
@@ -3818,6 +4198,219 @@ StringTools.hex = function(n,digits) {
 	}
 	return s;
 };
+var _$TextTools_MultilangFonts = function() {
+	this.serif = "assets/texter/TextTools/serif.ttf";
+	this.sans = "assets/texter/TextTools/sans.ttf";
+};
+$hxClasses["_TextTools.MultilangFonts"] = _$TextTools_MultilangFonts;
+_$TextTools_MultilangFonts.__name__ = "_TextTools.MultilangFonts";
+_$TextTools_MultilangFonts.prototype = {
+	__class__: _$TextTools_MultilangFonts
+};
+var TextTools = function() { };
+$hxClasses["TextTools"] = TextTools;
+TextTools.__name__ = "TextTools";
+TextTools.replaceLast = function(string,replace,by) {
+	var place = string.lastIndexOf(replace);
+	var result = string.substring(0,place) + by + string.substring(place + replace.length);
+	return result;
+};
+TextTools.replaceFirst = function(string,replace,by) {
+	var place = string.indexOf(replace);
+	var result = string.substring(0,place) + by + string.substring(place + replace.length);
+	return result;
+};
+TextTools.splitOnFirst = function(string,delimiter) {
+	var place = string.indexOf(delimiter);
+	var result = [];
+	result.push(string.substring(0,place));
+	result.push(string.substring(place + delimiter.length));
+	return result;
+};
+TextTools.splitOnLast = function(string,delimiter) {
+	var place = string.lastIndexOf(delimiter);
+	var result = [];
+	result.push(string.substring(0,place));
+	result.push(string.substring(place + delimiter.length));
+	return result;
+};
+TextTools.splitOnParagraph = function(text) {
+	return new EReg("<p>|</p>|\n\n|\r\n\r\n","g").split(text);
+};
+TextTools.filter = function(text,filter) {
+	if(((filter) instanceof EReg)) {
+		var pattern = filter;
+		text = text.replace(pattern.r,"");
+		return text;
+	}
+	var patternType = filter;
+	if(TextTools.replaceFirst(text,"/","") != patternType) {
+		var regexDetector = new EReg("^~?/(.*)/(.*)$","s");
+		regexDetector.match(patternType);
+		return filter(text,new EReg(regexDetector.matched(1),regexDetector.matched(2)));
+	}
+	switch(patternType.toLowerCase()) {
+	case "alpha":
+		return filter(text,new EReg("[^a-zA-Z]","g"));
+	case "alphanumeric":
+		return filter(text,new EReg("[^a-zA-Z0-9]","g"));
+	case "numeric":
+		return filter(text,new EReg("[^0-9]","g"));
+	}
+	return text;
+};
+TextTools.indexesOf = function(string,sub) {
+	var indexArray = [];
+	var removedLength = 0;
+	var index = string.indexOf(sub);
+	while(index != -1) {
+		indexArray.push({ startIndex : index + removedLength, endIndex : index + sub.length + removedLength - 1});
+		removedLength += sub.length;
+		string = string.substring(0,index) + string.substring(index + sub.length,string.length);
+		index = string.indexOf(sub);
+	}
+	return indexArray;
+};
+TextTools.indexesOfSubs = function(string,subs) {
+	var indexArray = [];
+	var orgString = string;
+	var _g = 0;
+	while(_g < subs.length) {
+		var sub = subs[_g];
+		++_g;
+		var removedLength = 0;
+		var index = string.indexOf(sub);
+		while(index != -1) {
+			indexArray.push({ startIndex : index + removedLength, endIndex : index + sub.length + removedLength});
+			removedLength += sub.length;
+			string = string.substring(0,index) + string.substring(index + sub.length,string.length);
+			index = string.indexOf(sub);
+		}
+		string = orgString;
+	}
+	return indexArray;
+};
+TextTools.indexesFromArray = function(string,subs) {
+	return TextTools.indexesOfSubs(string,subs);
+};
+TextTools.indexesFromEReg = function(string,ereg) {
+	var indexArray = [];
+	while(ereg.match(string)) {
+		var info = ereg.matchedPos();
+		var by = TextTools.multiply("⨔",info.len);
+		string = string.replace(ereg.r,by);
+		indexArray.push({ startIndex : info.pos, endIndex : info.pos + info.len});
+	}
+	return indexArray;
+};
+TextTools.multiply = function(string,times) {
+	var stringcopy = string;
+	if(times <= 0) {
+		return "";
+	}
+	while(--times > 0) string += stringcopy;
+	return string;
+};
+TextTools.subtract = function(string,by) {
+	return TextTools.replaceLast(string,by,"");
+};
+TextTools.loremIpsum = function(paragraphs,length) {
+	if(length == null) {
+		length = -1;
+	}
+	if(paragraphs == null) {
+		paragraphs = 1;
+	}
+	var text = StringTools.replace(TextTools.loremIpsumText,"\t","");
+	var loremArray = new EReg("<p>|</p>|\n\n|\r\n\r\n","g").split(text);
+	var loremText = loremArray.join("\n\n");
+	if(paragraphs > loremArray.length) {
+		var multiplier = Math.ceil(paragraphs / loremArray.length);
+		loremText = TextTools.multiply(TextTools.loremIpsumText,multiplier);
+		loremArray = new EReg("<p>|</p>|\n\n|\r\n\r\n","g").split(loremText);
+	}
+	while(loremArray.length > paragraphs) loremArray.pop();
+	var loremString = loremArray.join("\n\n");
+	if(length != -1) {
+		return loremString.substring(0,length);
+	}
+	return loremString;
+};
+TextTools.sortByLength = function(array) {
+	array.sort(function(a,b) {
+		return a.length - b.length;
+	});
+	return array;
+};
+TextTools.sortByValue = function(array) {
+	array.sort(function(a,b) {
+		return a - b | 0;
+	});
+	return array;
+};
+TextTools.sortByIntValue = function(array) {
+	array.sort(function(a,b) {
+		return a - b;
+	});
+	return array;
+};
+TextTools.getLineIndexOfChar = function(string,index) {
+	var lines = string.split("\n");
+	var lineIndex = 0;
+	var _g = 0;
+	var _g1 = lines.length;
+	while(_g < _g1) {
+		var i = _g++;
+		if(index < lines[i].length) {
+			lineIndex = i;
+			break;
+		}
+		index -= lines[i].length;
+	}
+	return lineIndex;
+};
+TextTools.countOccurrencesOf = function(string,sub) {
+	var count = 0;
+	while(TextTools.contains(string,sub)) {
+		++count;
+		string = TextTools.replaceFirst(string,sub,"");
+	}
+	return count;
+};
+TextTools.contains = function(string,contains) {
+	if(string == null) {
+		return false;
+	}
+	return string.indexOf(contains) != -1;
+};
+TextTools.remove = function(string,sub) {
+	return TextTools.replace(string,sub,"");
+};
+TextTools.replace = function(string,replace,$with) {
+	if(replace == null || $with == null) {
+		return string;
+	}
+	return StringTools.replace(string,replace,$with);
+};
+TextTools.reverse = function(string) {
+	var returnedString = "";
+	var _g = 1;
+	var _g1 = string.length + 1;
+	while(_g < _g1) {
+		var i = _g++;
+		returnedString += string.charAt(string.length - 1);
+	}
+	return returnedString;
+};
+TextTools.insert = function(string,substring,at) {
+	return string.substring(0,at + 1) + substring + string.substring(at + 1);
+};
+var TextDirection = $hxEnums["TextDirection"] = { __ename__:"TextDirection",__constructs__:null
+	,RTL: {_hx_name:"RTL",_hx_index:0,__enum__:"TextDirection",toString:$estr}
+	,LTR: {_hx_name:"LTR",_hx_index:1,__enum__:"TextDirection",toString:$estr}
+	,UNDETERMINED: {_hx_name:"UNDETERMINED",_hx_index:2,__enum__:"TextDirection",toString:$estr}
+};
+TextDirection.__constructs__ = [TextDirection.RTL,TextDirection.LTR,TextDirection.UNDETERMINED];
 var ValueType = $hxEnums["ValueType"] = { __ename__:"ValueType",__constructs__:null
 	,TNull: {_hx_name:"TNull",_hx_index:0,__enum__:"ValueType",toString:$estr}
 	,TInt: {_hx_name:"TInt",_hx_index:1,__enum__:"ValueType",toString:$estr}
@@ -3887,6 +4480,34 @@ Type.typeof = function(v) {
 	default:
 		return ValueType.TUnknown;
 	}
+};
+Type.enumEq = function(a,b) {
+	if(a == b) {
+		return true;
+	}
+	try {
+		var e = a.__enum__;
+		if(e == null || e != b.__enum__) {
+			return false;
+		}
+		if(a._hx_index != b._hx_index) {
+			return false;
+		}
+		var enm = $hxEnums[e];
+		var params = enm.__constructs__[a._hx_index].__params__;
+		var _g = 0;
+		while(_g < params.length) {
+			var f = params[_g];
+			++_g;
+			if(!Type.enumEq(a[f],b[f])) {
+				return false;
+			}
+		}
+	} catch( _g ) {
+		haxe_NativeStackTrace.lastError = _g;
+		return false;
+	}
+	return true;
 };
 Type.enumParameters = function(e) {
 	var enm = $hxEnums[e.__enum__];
@@ -3999,6 +4620,7 @@ geometry_basic_DraggableSprite.prototype = $extend(openfl_display_Sprite.prototy
 		this.pX = this.get_x();
 		this.pY = this.get_x();
 		this.removeEventListener("mouseDown",$bind(this,this.registerDrag));
+		this.removeEventListener("mouseOut",$bind(this,this.onMouseOut));
 		this.stage.addEventListener("mouseMove",$bind(this,this.applyDrag));
 		this.stage.addEventListener("mouseUp",$bind(this,this.unregisterDrag));
 	}
@@ -4019,6 +4641,7 @@ geometry_basic_DraggableSprite.prototype = $extend(openfl_display_Sprite.prototy
 		this.stage.removeEventListener("mouseMove",$bind(this,this.applyDrag));
 		this.stage.removeEventListener("mouseUp",$bind(this,this.unregisterDrag));
 		this.addEventListener("mouseDown",$bind(this,this.registerDrag));
+		this.addEventListener("mouseOut",$bind(this,this.onMouseOut));
 		if(local.x == this.pX && local.y == this.pY) {
 			return;
 		}
@@ -4290,6 +4913,115 @@ geometry_basic_Joint.prototype = $extend(geometry_basic_DraggableSprite.prototyp
 	,__class__: geometry_basic_Joint
 	,__properties__: $extend(geometry_basic_DraggableSprite.prototype.__properties__,{set_fillColor:"set_fillColor",set_outlineColor:"set_outlineColor"})
 });
+var geometry_math_EquationInterpreter = function() { };
+$hxClasses["geometry.math.EquationInterpreter"] = geometry_math_EquationInterpreter;
+geometry_math_EquationInterpreter.__name__ = "geometry.math.EquationInterpreter";
+geometry_math_EquationInterpreter.lex = function(code) {
+	var tokens = [];
+	var i = 0;
+	while(i < code.length) {
+		var char = code.charAt(i);
+		if("1234567890.".indexOf(char) != -1) {
+			var num = char;
+			++i;
+			while(i < code.length && "1234567890.".indexOf(code.charAt(i)) != -1) {
+				num += code.charAt(i);
+				++i;
+			}
+			--i;
+			if(num == ".") {
+				tokens.push(geometry_math_Token.Sign("."));
+			} else if(StringTools.endsWith(num,".")) {
+				tokens.push(geometry_math_Token.Number(vision_tools_MathTools.parseFloat(TextTools.replaceLast(num,".",""))));
+				tokens.push(geometry_math_Token.Sign("."));
+			} else {
+				tokens.push(geometry_math_Token.Number(vision_tools_MathTools.parseFloat(num)));
+			}
+		} else if(geometry_math_EquationInterpreter.signs.indexOf(char) != -1) {
+			var sign = char;
+			++i;
+			while(i < code.length && geometry_math_EquationInterpreter.signs.indexOf(code.charAt(i)) != -1) {
+				sign += code.charAt(i);
+				++i;
+			}
+			--i;
+			tokens.push(geometry_math_Token.Sign(sign));
+		} else if(new EReg("[^+-.!@#$%%^&*0-9 \t\n\r;,\\(\\)\\[\\]\\{\\}]","").match(char)) {
+			var name = char;
+			++i;
+			while(i < code.length && new EReg("[^+-.!@#$%%^&*0-9 \t\n\r;,\\(\\)\\[\\]\\{\\}]","").match(code.charAt(i))) {
+				name += code.charAt(i);
+				++i;
+			}
+			--i;
+			tokens.push(geometry_math_Token.Variable(name));
+		}
+		++i;
+	}
+	tokens = geometry_math_EquationInterpreter.mergeClosures(tokens);
+	return tokens;
+};
+geometry_math_EquationInterpreter.mergeClosures = function(pre) {
+	if(pre == null) {
+		return null;
+	}
+	if(pre.length == 1 && pre[0] == null) {
+		return [null];
+	}
+	var post = [];
+	var i = 0;
+	while(i < pre.length) {
+		var token = pre[i];
+		switch(token._hx_index) {
+		case 2:
+			var parts = token.elements;
+			post.push(geometry_math_Token.Closure(geometry_math_EquationInterpreter.mergeClosures(parts)));
+			break;
+		case 5:
+			if(token.s == "(") {
+				var expressionBody = [];
+				var expressionStack = 1;
+				while(i + 1 < pre.length) {
+					var lookahead = pre[i + 1];
+					if(Type.enumEq(lookahead,geometry_math_Token.Sign("("))) {
+						++expressionStack;
+						expressionBody.push(lookahead);
+					} else if(Type.enumEq(lookahead,geometry_math_Token.Sign(")"))) {
+						--expressionStack;
+						if(expressionStack == 0) {
+							break;
+						}
+						expressionBody.push(lookahead);
+					} else {
+						expressionBody.push(lookahead);
+					}
+					++i;
+				}
+				if(i + 1 == pre.length) {
+					throw haxe_Exception.thrown("Equation contains unclosed parentheses");
+				}
+				post.push(geometry_math_Token.Closure(geometry_math_EquationInterpreter.mergeClosures(expressionBody)));
+				++i;
+			} else {
+				post.push(token);
+			}
+			break;
+		default:
+			post.push(token);
+		}
+		++i;
+	}
+	return post;
+};
+var geometry_math_Token = $hxEnums["geometry.math.Token"] = { __ename__:"geometry.math.Token",__constructs__:null
+	,Operation: ($_=function(lhs,sign,rhs) { return {_hx_index:0,lhs:lhs,sign:sign,rhs:rhs,__enum__:"geometry.math.Token",toString:$estr}; },$_._hx_name="Operation",$_.__params__ = ["lhs","sign","rhs"],$_)
+	,Function: ($_=function(name,params) { return {_hx_index:1,name:name,params:params,__enum__:"geometry.math.Token",toString:$estr}; },$_._hx_name="Function",$_.__params__ = ["name","params"],$_)
+	,Closure: ($_=function(elements) { return {_hx_index:2,elements:elements,__enum__:"geometry.math.Token",toString:$estr}; },$_._hx_name="Closure",$_.__params__ = ["elements"],$_)
+	,Variable: ($_=function(name) { return {_hx_index:3,name:name,__enum__:"geometry.math.Token",toString:$estr}; },$_._hx_name="Variable",$_.__params__ = ["name"],$_)
+	,Number: ($_=function(num) { return {_hx_index:4,num:num,__enum__:"geometry.math.Token",toString:$estr}; },$_._hx_name="Number",$_.__params__ = ["num"],$_)
+	,Sign: ($_=function(s) { return {_hx_index:5,s:s,__enum__:"geometry.math.Token",toString:$estr}; },$_._hx_name="Sign",$_.__params__ = ["s"],$_)
+};
+geometry_math_Token.__constructs__ = [geometry_math_Token.Operation,geometry_math_Token.Function,geometry_math_Token.Closure,geometry_math_Token.Variable,geometry_math_Token.Number,geometry_math_Token.Sign];
 var geometry_shapes_Triangle = function(j1,j2,j3) {
 	this.type = 3;
 	geometry_basic_DraggableSprite.call(this);
@@ -22141,194 +22873,6 @@ lime_system__$ThreadPool_ThreadPoolMessage.__name__ = "lime.system._ThreadPool.T
 lime_system__$ThreadPool_ThreadPoolMessage.prototype = {
 	__class__: lime_system__$ThreadPool_ThreadPoolMessage
 };
-var lime_text_Font = function(name) {
-	if(name != null) {
-		this.name = name;
-	}
-	if(!this.__init) {
-		if(this.ascender == undefined) {
-			this.ascender = 0;
-		}
-		if(this.descender == undefined) {
-			this.descender = 0;
-		}
-		if(this.height == undefined) {
-			this.height = 0;
-		}
-		if(this.numGlyphs == undefined) {
-			this.numGlyphs = 0;
-		}
-		if(this.underlinePosition == undefined) {
-			this.underlinePosition = 0;
-		}
-		if(this.underlineThickness == undefined) {
-			this.underlineThickness = 0;
-		}
-		if(this.unitsPerEM == undefined) {
-			this.unitsPerEM = 0;
-		}
-		if(this.__fontID != null) {
-			if(lime_utils_Assets.isLocal(this.__fontID)) {
-				this.__fromBytes(lime_utils_Assets.getBytes(this.__fontID));
-			}
-		} else if(this.__fontPath != null) {
-			this.__fromFile(this.__fontPath);
-		}
-	}
-};
-$hxClasses["lime.text.Font"] = lime_text_Font;
-lime_text_Font.__name__ = "lime.text.Font";
-lime_text_Font.fromBytes = function(bytes) {
-	if(bytes == null) {
-		return null;
-	}
-	var font = new lime_text_Font();
-	font.__fromBytes(bytes);
-	return font;
-};
-lime_text_Font.fromFile = function(path) {
-	if(path == null) {
-		return null;
-	}
-	var font = new lime_text_Font();
-	font.__fromFile(path);
-	return font;
-};
-lime_text_Font.loadFromBytes = function(bytes) {
-	return lime_app_Future.withValue(lime_text_Font.fromBytes(bytes));
-};
-lime_text_Font.loadFromFile = function(path) {
-	var request = new lime_net__$HTTPRequest_$lime_$text_$Font();
-	return request.load(path).then(function(font) {
-		if(font != null) {
-			return lime_app_Future.withValue(font);
-		} else {
-			return lime_app_Future.withError("");
-		}
-	});
-};
-lime_text_Font.loadFromName = function(path) {
-	var font = new lime_text_Font();
-	return font.__loadFromName(path);
-};
-lime_text_Font.__measureFontNode = function(fontFamily) {
-	var node = window.document.createElement("span");
-	node.setAttribute("aria-hidden","true");
-	var text = window.document.createTextNode("BESbswy");
-	node.appendChild(text);
-	var style = node.style;
-	style.display = "block";
-	style.position = "absolute";
-	style.top = "-9999px";
-	style.left = "-9999px";
-	style.fontSize = "300px";
-	style.width = "auto";
-	style.height = "auto";
-	style.lineHeight = "normal";
-	style.margin = "0";
-	style.padding = "0";
-	style.fontVariant = "normal";
-	style.whiteSpace = "nowrap";
-	style.fontFamily = fontFamily;
-	window.document.body.appendChild(node);
-	return node;
-};
-lime_text_Font.prototype = {
-	decompose: function() {
-		return null;
-	}
-	,getGlyph: function(character) {
-		return -1;
-	}
-	,getGlyphs: function(characters) {
-		if(characters == null) {
-			characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^`'\"/\\&*()[]{}<>|:;_-+=?,. ";
-		}
-		return null;
-	}
-	,getGlyphMetrics: function(glyph) {
-		return null;
-	}
-	,renderGlyph: function(glyph,fontSize) {
-		return null;
-	}
-	,renderGlyphs: function(glyphs,fontSize) {
-		return null;
-	}
-	,__copyFrom: function(other) {
-		if(other != null) {
-			this.ascender = other.ascender;
-			this.descender = other.descender;
-			this.height = other.height;
-			this.name = other.name;
-			this.numGlyphs = other.numGlyphs;
-			this.src = other.src;
-			this.underlinePosition = other.underlinePosition;
-			this.underlineThickness = other.underlineThickness;
-			this.unitsPerEM = other.unitsPerEM;
-			this.__fontID = other.__fontID;
-			this.__fontPath = other.__fontPath;
-			this.__init = true;
-		}
-	}
-	,__fromBytes: function(bytes) {
-		this.__fontPath = null;
-	}
-	,__fromFile: function(path) {
-		this.__fontPath = path;
-	}
-	,__initializeSource: function() {
-		this.__init = true;
-	}
-	,__loadFromName: function(name) {
-		var _gthis = this;
-		var promise = new lime_app_Promise();
-		this.name = name;
-		var userAgent = $global.navigator.userAgent.toLowerCase();
-		var isSafari = userAgent.indexOf(" safari/") >= 0 && userAgent.indexOf(" chrome/") < 0;
-		var isUIWebView = new EReg("(iPhone|iPod|iPad).*AppleWebKit(?!.*Version)","i").match(userAgent);
-		if(!isSafari && !isUIWebView && (window.document.fonts && ($_=window.document.fonts,$bind($_,$_.load)))) {
-			window.document.fonts.load("1em '" + name + "'").then(function(_) {
-				promise.complete(_gthis);
-			},function(_) {
-				lime_utils_Log.warn("Could not load web font \"" + name + "\"",{ fileName : "lime/text/Font.hx", lineNumber : 513, className : "lime.text.Font", methodName : "__loadFromName"});
-				promise.complete(_gthis);
-			});
-		} else {
-			var node1 = lime_text_Font.__measureFontNode("'" + name + "', sans-serif");
-			var node2 = lime_text_Font.__measureFontNode("'" + name + "', serif");
-			var width1 = node1.offsetWidth;
-			var width2 = node2.offsetWidth;
-			var interval = -1;
-			var timeout = 3000;
-			var intervalLength = 50;
-			var intervalCount = 0;
-			var loaded;
-			var timeExpired;
-			var checkFont = function() {
-				intervalCount += 1;
-				loaded = node1.offsetWidth != width1 || node2.offsetWidth != width2;
-				timeExpired = intervalCount * intervalLength >= timeout;
-				if(loaded || timeExpired) {
-					window.clearInterval(interval);
-					node1.parentNode.removeChild(node1);
-					node2.parentNode.removeChild(node2);
-					node1 = null;
-					node2 = null;
-					if(timeExpired) {
-						lime_utils_Log.warn("Could not load web font \"" + name + "\"",{ fileName : "lime/text/Font.hx", lineNumber : 548, className : "lime.text.Font", methodName : "__loadFromName"});
-					}
-					promise.complete(_gthis);
-				}
-			};
-			interval = window.setInterval(checkFont,intervalLength);
-		}
-		return promise.future;
-	}
-	,__setSize: function(size) {
-	}
-	,__class__: lime_text_Font
-};
 var lime_text_Glyph = {};
 lime_text_Glyph._new = function(i) {
 	return i;
@@ -23240,7 +23784,7 @@ var lime_utils_AssetCache = function() {
 	this.audio = new haxe_ds_StringMap();
 	this.font = new haxe_ds_StringMap();
 	this.image = new haxe_ds_StringMap();
-	this.version = 783864;
+	this.version = 201603;
 };
 $hxClasses["lime.utils.AssetCache"] = lime_utils_AssetCache;
 lime_utils_AssetCache.__name__ = "lime.utils.AssetCache";
@@ -65631,77 +66175,6 @@ openfl_text_AntiAliasType.toString = function(this1) {
 		return null;
 	}
 };
-var openfl_text_Font = function(name) {
-	lime_text_Font.call(this,name);
-};
-$hxClasses["openfl.text.Font"] = openfl_text_Font;
-openfl_text_Font.__name__ = "openfl.text.Font";
-openfl_text_Font.enumerateFonts = function(enumerateDeviceFonts) {
-	if(enumerateDeviceFonts == null) {
-		enumerateDeviceFonts = false;
-	}
-	return openfl_text_Font.__registeredFonts;
-};
-openfl_text_Font.fromBytes = function(bytes) {
-	var font = new openfl_text_Font();
-	font.__fromBytes(openfl_utils_ByteArray.toBytes(bytes));
-	return font;
-};
-openfl_text_Font.fromFile = function(path) {
-	var font = new openfl_text_Font();
-	font.__fromFile(path);
-	return font;
-};
-openfl_text_Font.loadFromBytes = function(bytes) {
-	return lime_text_Font.loadFromBytes(openfl_utils_ByteArray.toBytes(bytes)).then(function(limeFont) {
-		var font = new openfl_text_Font();
-		font.__fromLimeFont(limeFont);
-		return lime_app_Future.withValue(font);
-	});
-};
-openfl_text_Font.loadFromFile = function(path) {
-	return lime_text_Font.loadFromFile(path).then(function(limeFont) {
-		var font = new openfl_text_Font();
-		font.__fromLimeFont(limeFont);
-		return lime_app_Future.withValue(font);
-	});
-};
-openfl_text_Font.loadFromName = function(path) {
-	return lime_text_Font.loadFromName(path).then(function(limeFont) {
-		var font = new openfl_text_Font();
-		font.__fromLimeFont(limeFont);
-		return lime_app_Future.withValue(font);
-	});
-};
-openfl_text_Font.registerFont = function(font) {
-	var instance = null;
-	if(js_Boot.getClass(font) == null) {
-		instance = js_Boot.__cast(Type.createInstance(font,[]) , openfl_text_Font);
-	} else {
-		instance = js_Boot.__cast(font , openfl_text_Font);
-	}
-	if(instance != null) {
-		openfl_text_Font.__registeredFonts.push(instance);
-		openfl_text_Font.__fontByName.h[instance.name] = instance;
-	}
-};
-openfl_text_Font.__super__ = lime_text_Font;
-openfl_text_Font.prototype = $extend(lime_text_Font.prototype,{
-	__fromLimeFont: function(font) {
-		this.__copyFrom(font);
-	}
-	,__initialize: function() {
-		return this.__initialized;
-	}
-	,get_fontName: function() {
-		return this.name;
-	}
-	,set_fontName: function(value) {
-		return this.name = value;
-	}
-	,__class__: openfl_text_Font
-	,__properties__: {set_fontName:"set_fontName",get_fontName:"get_fontName"}
-});
 var openfl_text_FontStyle = {};
 openfl_text_FontStyle.fromString = function(value) {
 	switch(value) {
@@ -73832,6 +74305,12 @@ openfl_utils__$internal_TouchData.prototype = {
 	}
 	,__class__: openfl_utils__$internal_TouchData
 };
+var texter_general_TextDirection = $hxEnums["texter.general.TextDirection"] = { __ename__:"texter.general.TextDirection",__constructs__:null
+	,RTL: {_hx_name:"RTL",_hx_index:0,__enum__:"texter.general.TextDirection",toString:$estr}
+	,LTR: {_hx_name:"LTR",_hx_index:1,__enum__:"texter.general.TextDirection",toString:$estr}
+	,UNDETERMINED: {_hx_name:"UNDETERMINED",_hx_index:2,__enum__:"texter.general.TextDirection",toString:$estr}
+};
+texter_general_TextDirection.__constructs__ = [texter_general_TextDirection.RTL,texter_general_TextDirection.LTR,texter_general_TextDirection.UNDETERMINED];
 var vision_algorithms_GaussJordan = function() { };
 $hxClasses["vision.algorithms.GaussJordan"] = vision_algorithms_GaussJordan;
 vision_algorithms_GaussJordan.__name__ = "vision.algorithms.GaussJordan";
@@ -78488,6 +78967,22 @@ vision_tools_MathTools.isFinite = function(f) {
 vision_tools_MathTools.isNaN = function(f) {
 	return isNaN(f);
 };
+vision_tools_MathTools.parseFloat = function(s) {
+	return parseFloat(s);
+};
+vision_tools_MathTools.parseInt = function(s) {
+	return Std.parseInt(s);
+};
+vision_tools_MathTools.parseBool = function(s) {
+	s = StringTools.trim(s).toLowerCase();
+	if(s == "true") {
+		return true;
+	}
+	if(s == "false") {
+		return false;
+	}
+	return null;
+};
 function $getIterator(o) { if( o instanceof Array ) return new haxe_iterators_ArrayIterator(o); else return o.iterator(); }
 function $bind(o,m) { if( m == null ) return null; if( m.__id__ == null ) m.__id__ = $global.$haxeUID++; var f; if( o.hx__closures__ == null ) o.hx__closures__ = {}; else f = o.hx__closures__[m.__id__]; if( f == null ) { f = m.bind(o); o.hx__closures__[m.__id__] = f; } return f; }
 $global.$haxeUID |= 0;
@@ -78563,9 +79058,14 @@ openfl_display_DisplayObject.__tempStack = new lime_utils_ObjectPool(function() 
 },function(stack) {
 	stack.set_length(0);
 });
+openfl_text_Font.__fontByName = new haxe_ds_StringMap();
+openfl_text_Font.__registeredFonts = [];
+TextTools.fonts = new _$TextTools_MultilangFonts();
+TextTools.loremIpsumText = "\r\n\t\tLorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque finibus condimentum magna, eget porttitor libero aliquam non. Praesent commodo, augue nec hendrerit tincidunt, urna felis lobortis mi, non cursus libero tellus quis tellus. Vivamus ornare convallis tristique. Integer nec ornare libero. Phasellus feugiat facilisis faucibus. Vivamus porta id neque id placerat. Proin convallis vel felis et pharetra. Quisque magna justo, ullamcorper quis scelerisque eu, tincidunt vitae lectus. Nunc sed turpis justo. Aliquam porttitor, purus sit amet faucibus bibendum, ligula elit molestie purus, eu volutpat turpis sapien ac tellus. Fusce mauris arcu, volutpat ut aliquam ut, ultrices id ante. Morbi quis consectetur turpis. Integer semper lacinia urna id laoreet.\r\n\r\n\t\tUt mollis eget eros eu tempor. Phasellus nulla velit, sollicitudin eget massa a, tristique rutrum turpis. Vestibulum in dolor at elit pellentesque finibus. Nulla pharetra felis a varius molestie. Nam magna lectus, eleifend ac sagittis id, ornare id nibh. Praesent congue est non iaculis consectetur. Nullam dictum augue sit amet dignissim fringilla. Aenean semper justo velit. Sed nec lectus facilisis, sodales diam eget, imperdiet nunc. Quisque elementum nulla non orci interdum pharetra id quis arcu. Phasellus eu nunc lectus. Nam tellus tortor, pellentesque eget faucibus eu, laoreet quis odio. Pellentesque posuere in enim a blandit.\r\n\r\n\t\tDuis dignissim neque et ex iaculis, ac consequat diam gravida. In mi ex, blandit eget velit non, euismod feugiat arcu. Nulla nec fermentum neque, eget elementum mauris. Vivamus urna ligula, faucibus at facilisis sed, commodo sit amet urna. Sed porttitor feugiat purus ac tincidunt. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Aliquam sollicitudin lacinia turpis quis placerat. Donec eget velit nibh. Duis vehicula orci lectus, eget rutrum arcu tincidunt et. Vestibulum ut pharetra lectus. Quisque lacinia nunc rhoncus neque venenatis consequat. Nulla rutrum ultricies sapien, sed semper lectus accumsan nec. Phasellus commodo faucibus lacinia. Donec auctor condimentum ligula. Sed quis viverra mauris.\r\n\r\n\t\tQuisque maximus justo dui, eget pretium lorem accumsan ac. Praesent eleifend faucibus orci et varius. Ut et molestie turpis, eu porta neque. Quisque vehicula, libero in tincidunt facilisis, purus eros pulvinar leo, sit amet eleifend justo ligula tempor lectus. Donec ac tortor sed ipsum tincidunt pulvinar id nec eros. In luctus purus cursus est dictum, ac sollicitudin turpis maximus. Maecenas a nisl velit. Nulla gravida lectus vel ultricies gravida. Proin vel bibendum magna. Donec aliquam ultricies quam, quis tempor nunc pharetra ut.\r\n\r\n\t\tPellentesque sit amet dui est. Aliquam erat volutpat. Integer vitae ullamcorper est, ut eleifend augue. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Quisque congue velit felis, vitae elementum nulla faucibus id. Donec lectus nibh, commodo eget nunc id, feugiat sagittis massa. In hac habitasse platea dictumst. Pellentesque volutpat molestie ultrices.\r\n\t";
 geometry_basic_Connection.all = [];
 geometry_basic_EllipseBase.all = [];
 geometry_basic_Joint.all = [];
+geometry_math_EquationInterpreter.signs = ["+","-","*","/","%","^"];
 haxe_Serializer.USE_CACHE = false;
 haxe_Serializer.USE_ENUM_INDEX = false;
 haxe_Serializer.BASE64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789%:";
@@ -80337,8 +80837,6 @@ openfl_system_SecurityDomain.__meta__ = { obj : { SuppressWarnings : ["checkstyl
 openfl_system_SecurityDomain.currentDomain = new openfl_system_SecurityDomain();
 openfl_text_AntiAliasType.ADVANCED = 0;
 openfl_text_AntiAliasType.NORMAL = 1;
-openfl_text_Font.__fontByName = new haxe_ds_StringMap();
-openfl_text_Font.__registeredFonts = [];
 openfl_text_FontStyle.BOLD = 0;
 openfl_text_FontStyle.BOLD_ITALIC = 1;
 openfl_text_FontStyle.ITALIC = 2;

@@ -11,6 +11,7 @@
 	
 	<haxelib name="openfl" />
 	<haxelib name="vision" />
+	<haxelib name="texter" />
 	
 	<assets path="Assets" rename="assets" />
 	<haxedef name="no-deprecation-warnings"/>

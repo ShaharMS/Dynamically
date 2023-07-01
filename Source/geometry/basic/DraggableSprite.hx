@@ -61,6 +61,7 @@ class DraggableSprite extends Sprite {
 		pX = x;
 		pY = x;
 		removeEventListener(MouseEvent.MOUSE_DOWN, registerDrag);
+		removeEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
 		stage.addEventListener(MouseEvent.MOUSE_MOVE, applyDrag);
 		stage.addEventListener(MouseEvent.MOUSE_UP, unregisterDrag);
 	}
@@ -77,6 +78,7 @@ class DraggableSprite extends Sprite {
 		stage.removeEventListener(MouseEvent.MOUSE_MOVE, applyDrag);
 		stage.removeEventListener(MouseEvent.MOUSE_UP, unregisterDrag);
 		addEventListener(MouseEvent.MOUSE_DOWN, registerDrag);
+		addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
 		if (local.x == pX && local.y == pY)
 			return;
 		

@@ -1,5 +1,6 @@
 package;
 
+import geometry.math.EquationInterpreter;
 import js.Browser;
 import geometry.shapes.Triangle;
 import geometry.basic.EllipseBase;
@@ -22,6 +23,7 @@ class Main extends Sprite
 		Browser.document.addEventListener("contextmenu", function(event) {
 			event.preventDefault(); // Prevent the default context menu
 		});
+		trace(EquationInterpreter.lex("xa^2 + y^2/3 = 5"));
 		#end
 
 		var j = new Joint(30, 30, "A").connect(new Joint(130, 30, "B")).connect(new Joint(120, 60, "C"));
