@@ -891,7 +891,7 @@ ApplicationMain.main = function() {
 ApplicationMain.create = function(config) {
 	var app = new openfl_display_Application();
 	ManifestResources.init(config);
-	app.meta.h["build"] = "10";
+	app.meta.h["build"] = "11";
 	app.meta.h["company"] = "Company Name";
 	app.meta.h["file"] = "DynamicallyDemo";
 	app.meta.h["name"] = "Dynamically";
@@ -3335,57 +3335,82 @@ openfl_display_Sprite.prototype = $extend(openfl_display_DisplayObjectContainer.
 });
 var Main = function() {
 	openfl_display_Sprite.call(this);
-	window.document.addEventListener("contextmenu",function(event) {
-		event.preventDefault();
-	});
-	haxe_Log.trace(geometry_math_EquationInterpreter.lex("xa^2 + y^2/3 = 5"),{ fileName : "Source/Main.hx", lineNumber : 26, className : "Main", methodName : "new"});
-	var _this = new geometry_basic_Joint(30,30,"A");
-	var _g_current = 0;
-	var _g_args = [new geometry_basic_Joint(130,30,"B")];
-	while(_g_current < _g_args.length) {
-		var joint = _g_args[_g_current++];
-		var doNothing = false;
-		var _g = 0;
-		var _g1 = _this.connections.concat(joint.connections);
-		while(_g < _g1.length) {
-			var c = _g1[_g];
-			++_g;
-			if(c.joint1 == _this && c.joint2 == joint || c.joint2 == _this && c.joint1 == joint) {
-				doNothing = true;
+	var script = window.document.createElement("script");
+	script.src = "./nerdamer.min.js";
+	script.async = false;
+	window.document.head.appendChild(script);
+	script.onload = function() {
+		var arr = nerdamer.solve("x^2 = 5*x*sin(pi/6)","x");
+		haxe_Log.trace(arr,{ fileName : "Source/Main.hx", lineNumber : 33, className : "Main", methodName : "new", customParams : [arr.toString()]});
+		console.log(arr.slice(1).prototype);
+		var _g = [];
+		var _g1 = 0;
+		while(_g1 < arr.length) {
+			var s = arr[_g1];
+			++_g1;
+			_g.push(s.toString());
+		}
+		var ta = _g;
+		haxe_Log.trace(ta,{ fileName : "Source/Main.hx", lineNumber : 36, className : "Main", methodName : "new"});
+		var _g = [];
+		var _g1 = 0;
+		while(_g1 < ta.length) {
+			var s = ta[_g1];
+			++_g1;
+			_g.push(geometry_math_EquationInterpreter.simplify(s));
+		}
+		haxe_Log.trace(_g,{ fileName : "Source/Main.hx", lineNumber : 37, className : "Main", methodName : "new"});
+		window.document.addEventListener("contextmenu",function(event) {
+			event.preventDefault();
+		});
+		var _this = new geometry_basic_Joint(30,30,"A");
+		var _g_current = 0;
+		var _g_args = [new geometry_basic_Joint(130,30,"B")];
+		while(_g_current < _g_args.length) {
+			var joint = _g_args[_g_current++];
+			var doNothing = false;
+			var _g = 0;
+			var _g1 = _this.connections.concat(joint.connections);
+			while(_g < _g1.length) {
+				var c = _g1[_g];
+				++_g;
+				if(c.joint1 == _this && c.joint2 == joint || c.joint2 == _this && c.joint1 == joint) {
+					doNothing = true;
+				}
+			}
+			if(!doNothing) {
+				var connection = new geometry_basic_Connection(_this,joint);
+				_this.connections.push(connection);
+				joint.connections.push(connection);
 			}
 		}
-		if(!doNothing) {
-			var connection = new geometry_basic_Connection(_this,joint);
-			_this.connections.push(connection);
-			joint.connections.push(connection);
-		}
-	}
-	var _this1 = _this;
-	var _g_current = 0;
-	var _g_args = [new geometry_basic_Joint(120,60,"C")];
-	while(_g_current < _g_args.length) {
-		var joint = _g_args[_g_current++];
-		var doNothing = false;
-		var _g = 0;
-		var _g1 = _this1.connections.concat(joint.connections);
-		while(_g < _g1.length) {
-			var c = _g1[_g];
-			++_g;
-			if(c.joint1 == _this1 && c.joint2 == joint || c.joint2 == _this1 && c.joint1 == joint) {
-				doNothing = true;
+		var _this1 = _this;
+		var _g_current = 0;
+		var _g_args = [new geometry_basic_Joint(120,60,"C")];
+		while(_g_current < _g_args.length) {
+			var joint = _g_args[_g_current++];
+			var doNothing = false;
+			var _g = 0;
+			var _g1 = _this1.connections.concat(joint.connections);
+			while(_g < _g1.length) {
+				var c = _g1[_g];
+				++_g;
+				if(c.joint1 == _this1 && c.joint2 == joint || c.joint2 == _this1 && c.joint1 == joint) {
+					doNothing = true;
+				}
+			}
+			if(!doNothing) {
+				var connection = new geometry_basic_Connection(_this1,joint);
+				_this1.connections.push(connection);
+				joint.connections.push(connection);
 			}
 		}
-		if(!doNothing) {
-			var connection = new geometry_basic_Connection(_this1,joint);
-			_this1.connections.push(connection);
-			joint.connections.push(connection);
-		}
-	}
-	var j = _this1;
-	var c = new geometry_basic_EllipseBase(new geometry_basic_Joint(250,250,"D"),new geometry_basic_Joint(350,250,"E"),150);
-	var c2 = new geometry_basic_EllipseBase(new geometry_basic_Joint(400,400,"F"),new geometry_basic_Joint(400,400,"F"),100);
-	var t = new geometry_shapes_Triangle(new geometry_basic_Joint(20,80,"G"),new geometry_basic_Joint(50,85,"H"),new geometry_basic_Joint(60,120,"I"));
-	geometry_Drawer.draw();
+		var j = _this1;
+		var c = new geometry_basic_EllipseBase(new geometry_basic_Joint(250,250,"D"),new geometry_basic_Joint(350,250,"E"),150);
+		var c2 = new geometry_basic_EllipseBase(new geometry_basic_Joint(400,400,"F"),new geometry_basic_Joint(400,400,"F"),100);
+		var t = new geometry_shapes_Triangle(new geometry_basic_Joint(20,80,"G"),new geometry_basic_Joint(50,85,"H"),new geometry_basic_Joint(60,120,"I"));
+		geometry_Drawer.draw();
+	};
 };
 $hxClasses["Main"] = Main;
 Main.__name__ = "Main";
@@ -4916,7 +4941,206 @@ geometry_basic_Joint.prototype = $extend(geometry_basic_DraggableSprite.prototyp
 var geometry_math_EquationInterpreter = function() { };
 $hxClasses["geometry.math.EquationInterpreter"] = geometry_math_EquationInterpreter;
 geometry_math_EquationInterpreter.__name__ = "geometry.math.EquationInterpreter";
-geometry_math_EquationInterpreter.lex = function(code) {
+geometry_math_EquationInterpreter.solveForVariable = function(tree,variable,parameters) {
+	tree = geometry_math_EquationInterpreter.reorderTree(tree);
+	var solveFor = function(value) {
+		parameters.h[variable] = value;
+		return geometry_math_EquationInterpreter.evaluateExpression(tree,parameters);
+	};
+	var slopeAt = function(value) {
+		var epsilon = 1e-9;
+		var f0 = solveFor(value);
+		var f1 = solveFor(value + epsilon);
+		return (f1 - f0) / epsilon;
+	};
+	var maxIterations = 100;
+	var tolerance = 1e-15;
+	var variableValue = 1.1;
+	var _g = 0;
+	var _g1 = maxIterations;
+	while(_g < _g1) {
+		var i = _g++;
+		var delta = solveFor(variableValue) / slopeAt(variableValue);
+		variableValue -= delta;
+		haxe_Log.trace("Guess " + i + ": " + variableValue,{ fileName : "Source/geometry/math/EquationInterpreter.hx", lineNumber : 35, className : "geometry.math.EquationInterpreter", methodName : "solveForVariable"});
+		if(Math.abs(delta) < tolerance) {
+			break;
+		}
+	}
+	return variableValue;
+};
+geometry_math_EquationInterpreter.simplify = function(exp,params) {
+	return geometry_math_EquationInterpreter.evaluateExpression(geometry_math_EquationInterpreter.reorderTree(geometry_math_EquationParser.parse(exp)),params == null ? new haxe_ds_StringMap() : params);
+};
+geometry_math_EquationInterpreter.evaluateExpression = function(tree,parameters) {
+	var stack = [];
+	var _g = 0;
+	while(_g < tree.length) {
+		var token = tree[_g];
+		++_g;
+		switch(token._hx_index) {
+		case 0:
+			var name = token.name;
+			var params = token.params;
+			var args = [];
+			var _g1 = 0;
+			while(_g1 < params.length) {
+				var param = params[_g1];
+				++_g1;
+				args.push(geometry_math_EquationInterpreter.evaluateExpression([param],parameters));
+			}
+			var result = geometry_math_EquationInterpreter.evaluateFunction(name,args);
+			stack.push(result);
+			break;
+		case 1:
+			var elements = token.elements;
+			var result1 = geometry_math_EquationInterpreter.evaluateExpression(elements,parameters);
+			stack.push(result1);
+			break;
+		case 2:
+			var name1 = token.name;
+			var value = parameters.h[name1];
+			stack.push(value);
+			break;
+		case 3:
+			var num = token.num;
+			stack.push(num);
+			break;
+		case 4:
+			var s = token.s;
+			switch(s) {
+			case "*":
+				var b = stack.pop();
+				var a = stack.pop();
+				stack.push(a * b);
+				break;
+			case "+":
+				var b1 = stack.pop();
+				var a1 = stack.pop();
+				stack.push(a1 + b1);
+				break;
+			case "-":
+				var b2 = stack.pop();
+				var a2 = stack.pop();
+				stack.push(a2 - b2);
+				break;
+			case "/":
+				var b3 = stack.pop();
+				var a3 = stack.pop();
+				stack.push(a3 / b3);
+				break;
+			case "^":
+				var exponent = stack.pop();
+				var base = stack.pop();
+				stack.push(Math.pow(base,exponent));
+				break;
+			}
+			break;
+		}
+	}
+	return stack.pop();
+};
+geometry_math_EquationInterpreter.evaluateFunction = function(name,args) {
+	switch(name) {
+	case "abs":
+		return Math.abs(args[0]);
+	case "cos":
+		return Math.cos(args[0]);
+	case "cosd":
+		return Math.cos(args[0] * Math.PI / 180);
+	case "cot":
+		return 1 / Math.tan(args[0]);
+	case "cotd":
+		return 1 / Math.tan(args[0] * Math.PI / 180);
+	case "csc":
+		return 1 / Math.sin(args[0]);
+	case "cscd":
+		return 1 / Math.sin(args[0] * Math.PI / 180);
+	case "sec":
+		return 1 / Math.cos(args[0]);
+	case "secd":
+		return 1 / Math.cos(args[0] * Math.PI / 180);
+	case "sin":
+		return Math.sin(args[0]);
+	case "sind":
+		return Math.sin(args[0] * Math.PI / 180);
+	case "sqrt":
+		return Math.sqrt(args[0]);
+	case "tan":
+		return Math.tan(args[0]);
+	case "tand":
+		return Math.tan(args[0] * Math.PI / 180);
+	}
+	haxe_Log.trace("Unsupported function: " + name,{ fileName : "Source/geometry/math/EquationInterpreter.hx", lineNumber : 121, className : "geometry.math.EquationInterpreter", methodName : "evaluateFunction"});
+	return 0.0;
+};
+geometry_math_EquationInterpreter.reorderTree = function(tree) {
+	var pos = 0;
+	var _g = 0;
+	while(_g < tree.length) {
+		var token = tree[_g];
+		++_g;
+		if(Type.enumEq(token,geometry_math_Token.Sign("="))) {
+			break;
+		}
+		++pos;
+	}
+	if(pos != tree.length) {
+		tree = tree.slice(0,pos).concat([geometry_math_Token.Sign("-")]).concat(tree.slice(pos + 1));
+	}
+	haxe_Log.trace(geometry_math_EquationParser.prettyPrint(tree),{ fileName : "Source/geometry/math/EquationInterpreter.hx", lineNumber : 154, className : "geometry.math.EquationInterpreter", methodName : "reorderTree"});
+	return geometry_math_EquationInterpreter.reorder(tree);
+};
+geometry_math_EquationInterpreter.reorder = function(pre) {
+	var post = [];
+	var i = 0;
+	while(i < pre.length) {
+		var token = pre[i];
+		switch(token._hx_index) {
+		case 0:
+			var name = token.name;
+			var params = token.params;
+			post.push(geometry_math_Token.Function(name,geometry_math_EquationInterpreter.reorder(params)));
+			break;
+		case 1:
+			var elements = token.elements;
+			var tmp;
+			if(elements.length == 3) {
+				var e = elements[1];
+				tmp = $hxEnums[e.__enum__].__constructs__[e._hx_index]._hx_name == "Sign";
+			} else {
+				tmp = false;
+			}
+			if(tmp) {
+				var e1 = elements[0];
+				var tmp1 = $hxEnums[e1.__enum__].__constructs__[e1._hx_index]._hx_name == "Closure" ? geometry_math_Token.Closure(geometry_math_EquationInterpreter.reorder(Type.enumParameters(elements[0])[0])) : elements[0];
+				var e2 = elements[2];
+				post.push(geometry_math_Token.Closure([tmp1,$hxEnums[e2.__enum__].__constructs__[e2._hx_index]._hx_name == "Closure" ? geometry_math_Token.Closure(geometry_math_EquationInterpreter.reorder(Type.enumParameters(elements[2])[0])) : elements[2],elements[1]]));
+			} else {
+				post.push(geometry_math_Token.Closure(geometry_math_EquationInterpreter.reorder(elements)));
+			}
+			break;
+		default:
+			post.push(token);
+		}
+		++i;
+	}
+	var tmp;
+	if(post.length == 3) {
+		var e = post[1];
+		tmp = $hxEnums[e.__enum__].__constructs__[e._hx_index]._hx_name == "Sign";
+	} else {
+		tmp = false;
+	}
+	if(tmp) {
+		post = [post[0],post[2],post[1]];
+	}
+	return post;
+};
+var geometry_math_EquationParser = function() { };
+$hxClasses["geometry.math.EquationParser"] = geometry_math_EquationParser;
+geometry_math_EquationParser.__name__ = "geometry.math.EquationParser";
+geometry_math_EquationParser.parse = function(code) {
 	var tokens = [];
 	var i = 0;
 	while(i < code.length) {
@@ -4937,15 +5161,8 @@ geometry_math_EquationInterpreter.lex = function(code) {
 			} else {
 				tokens.push(geometry_math_Token.Number(vision_tools_MathTools.parseFloat(num)));
 			}
-		} else if(geometry_math_EquationInterpreter.signs.indexOf(char) != -1) {
-			var sign = char;
-			++i;
-			while(i < code.length && geometry_math_EquationInterpreter.signs.indexOf(code.charAt(i)) != -1) {
-				sign += code.charAt(i);
-				++i;
-			}
-			--i;
-			tokens.push(geometry_math_Token.Sign(sign));
+		} else if(geometry_math_EquationParser.signs.indexOf(char) != -1) {
+			tokens.push(geometry_math_Token.Sign(char));
 		} else if(new EReg("[^+-.!@#$%%^&*0-9 \t\n\r;,\\(\\)\\[\\]\\{\\}]","").match(char)) {
 			var name = char;
 			++i;
@@ -4958,10 +5175,12 @@ geometry_math_EquationInterpreter.lex = function(code) {
 		}
 		++i;
 	}
-	tokens = geometry_math_EquationInterpreter.mergeClosures(tokens);
+	tokens = geometry_math_EquationParser.mergeClosures(tokens);
+	tokens = geometry_math_EquationParser.mergeFunctions(tokens);
+	tokens = geometry_math_EquationParser.mergeOperations(tokens);
 	return tokens;
 };
-geometry_math_EquationInterpreter.mergeClosures = function(pre) {
+geometry_math_EquationParser.mergeClosures = function(pre) {
 	if(pre == null) {
 		return null;
 	}
@@ -4973,11 +5192,11 @@ geometry_math_EquationInterpreter.mergeClosures = function(pre) {
 	while(i < pre.length) {
 		var token = pre[i];
 		switch(token._hx_index) {
-		case 2:
+		case 1:
 			var parts = token.elements;
-			post.push(geometry_math_Token.Closure(geometry_math_EquationInterpreter.mergeClosures(parts)));
+			post.push(geometry_math_Token.Closure(geometry_math_EquationParser.mergeClosures(parts)));
 			break;
-		case 5:
+		case 4:
 			if(token.s == "(") {
 				var expressionBody = [];
 				var expressionStack = 1;
@@ -4997,10 +5216,10 @@ geometry_math_EquationInterpreter.mergeClosures = function(pre) {
 					}
 					++i;
 				}
-				if(i + 1 == pre.length) {
+				if(i == pre.length) {
 					throw haxe_Exception.thrown("Equation contains unclosed parentheses");
 				}
-				post.push(geometry_math_Token.Closure(geometry_math_EquationInterpreter.mergeClosures(expressionBody)));
+				post.push(geometry_math_Token.Closure(geometry_math_EquationParser.mergeClosures(expressionBody)));
 				++i;
 			} else {
 				post.push(token);
@@ -5013,15 +5232,251 @@ geometry_math_EquationInterpreter.mergeClosures = function(pre) {
 	}
 	return post;
 };
-var geometry_math_Token = $hxEnums["geometry.math.Token"] = { __ename__:"geometry.math.Token",__constructs__:null
-	,Operation: ($_=function(lhs,sign,rhs) { return {_hx_index:0,lhs:lhs,sign:sign,rhs:rhs,__enum__:"geometry.math.Token",toString:$estr}; },$_._hx_name="Operation",$_.__params__ = ["lhs","sign","rhs"],$_)
-	,Function: ($_=function(name,params) { return {_hx_index:1,name:name,params:params,__enum__:"geometry.math.Token",toString:$estr}; },$_._hx_name="Function",$_.__params__ = ["name","params"],$_)
-	,Closure: ($_=function(elements) { return {_hx_index:2,elements:elements,__enum__:"geometry.math.Token",toString:$estr}; },$_._hx_name="Closure",$_.__params__ = ["elements"],$_)
-	,Variable: ($_=function(name) { return {_hx_index:3,name:name,__enum__:"geometry.math.Token",toString:$estr}; },$_._hx_name="Variable",$_.__params__ = ["name"],$_)
-	,Number: ($_=function(num) { return {_hx_index:4,num:num,__enum__:"geometry.math.Token",toString:$estr}; },$_._hx_name="Number",$_.__params__ = ["num"],$_)
-	,Sign: ($_=function(s) { return {_hx_index:5,s:s,__enum__:"geometry.math.Token",toString:$estr}; },$_._hx_name="Sign",$_.__params__ = ["s"],$_)
+geometry_math_EquationParser.mergeFunctions = function(pre) {
+	if(pre == null) {
+		return null;
+	}
+	if(pre.length == 1 && pre[0] == null) {
+		return [null];
+	}
+	var post = [];
+	var i = 0;
+	while(i < pre.length) {
+		var token = pre[i];
+		if(token._hx_index == 2) {
+			var name = token.name;
+			if(i + 1 >= pre.length) {
+				post.push(token);
+			} else {
+				var e = pre[i + 1];
+				if($hxEnums[e.__enum__].__constructs__[e._hx_index]._hx_name == "Closure") {
+					post.push(geometry_math_Token.Function(name,Type.enumParameters(pre[i + 1])[0]));
+					++i;
+				} else {
+					post.push(token);
+				}
+			}
+		} else {
+			post.push(token);
+		}
+		++i;
+	}
+	return post;
 };
-geometry_math_Token.__constructs__ = [geometry_math_Token.Operation,geometry_math_Token.Function,geometry_math_Token.Closure,geometry_math_Token.Variable,geometry_math_Token.Number,geometry_math_Token.Sign];
+geometry_math_EquationParser.mergeOperations = function(pre) {
+	if(pre == null) {
+		return null;
+	}
+	if(pre.length == 1 && pre[0] == null) {
+		return [null];
+	}
+	var post = [];
+	var i = 0;
+	while(i < pre.length) {
+		var token = pre[i];
+		switch(token._hx_index) {
+		case 0:
+			var name = token.name;
+			var params = token.params;
+			post.push(geometry_math_Token.Function(name,geometry_math_EquationParser.mergeOperations(params)));
+			break;
+		case 1:
+			var elements = token.elements;
+			if(elements.length == 3 || elements.length == 1) {
+				post.push(token);
+			} else {
+				post.push(geometry_math_Token.Closure(geometry_math_EquationParser.mergeOperations(elements)));
+			}
+			break;
+		case 4:
+			var s = token.s;
+			if(i + 1 >= pre.length) {
+				throw haxe_Exception.thrown("Operator at the end of equation/parentheses");
+			}
+			if(s == "^") {
+				var lhs = post.pop();
+				var rhs = pre[i + 1];
+				post.push(geometry_math_Token.Closure([lhs,token,rhs]));
+				++i;
+			} else {
+				post.push(token);
+			}
+			break;
+		default:
+			post.push(token);
+		}
+		++i;
+	}
+	pre = post.slice();
+	post = [];
+	var i = 0;
+	while(i < pre.length) {
+		var token = pre[i];
+		switch(token._hx_index) {
+		case 0:
+			var name = token.name;
+			var params = token.params;
+			post.push(geometry_math_Token.Function(name,geometry_math_EquationParser.mergeOperations(params)));
+			break;
+		case 1:
+			var elements = token.elements;
+			if(elements.length == 3 || elements.length == 1) {
+				post.push(token);
+			} else {
+				post.push(geometry_math_Token.Closure(geometry_math_EquationParser.mergeOperations(elements)));
+			}
+			break;
+		case 4:
+			var s = token.s;
+			if(i + 1 >= pre.length) {
+				throw haxe_Exception.thrown("Operator at the end of equation/parentheses");
+			}
+			if(s == "*" || s == "/") {
+				var lhs = post.pop();
+				var rhs = pre[i + 1];
+				post.push(geometry_math_Token.Closure([lhs,token,rhs]));
+				++i;
+			} else {
+				post.push(token);
+			}
+			break;
+		default:
+			post.push(token);
+		}
+		++i;
+	}
+	pre = post.slice();
+	post = [];
+	var i = 0;
+	while(i < pre.length) {
+		var token = pre[i];
+		switch(token._hx_index) {
+		case 0:
+			var name = token.name;
+			var params = token.params;
+			post.push(geometry_math_Token.Function(name,geometry_math_EquationParser.mergeOperations(params)));
+			break;
+		case 1:
+			var elements = token.elements;
+			if(elements.length == 3 || elements.length == 1) {
+				post.push(token);
+			} else {
+				post.push(geometry_math_Token.Closure(geometry_math_EquationParser.mergeOperations(elements)));
+			}
+			break;
+		case 4:
+			var s = token.s;
+			if(i + 1 >= pre.length) {
+				throw haxe_Exception.thrown("Operator at the end of equation/parentheses");
+			}
+			if(s == "+" || s == "-") {
+				var lhs = post.pop();
+				var rhs = pre[i + 1];
+				post.push(geometry_math_Token.Closure([lhs,token,rhs]));
+				++i;
+			} else {
+				post.push(token);
+			}
+			break;
+		default:
+			post.push(token);
+		}
+		++i;
+	}
+	return post;
+};
+geometry_math_EquationParser.prettyPrint = function(ast,spacingBetweenNodes) {
+	if(spacingBetweenNodes == null) {
+		spacingBetweenNodes = 6;
+	}
+	if(ast == null) {
+		return "null (look for errors in input)";
+	}
+	geometry_math_EquationParser.s = TextTools.multiply(" ",spacingBetweenNodes);
+	var unfilteredResult = geometry_math_EquationParser.getTree(geometry_math_Token.Closure(ast),[],0,true);
+	var filtered = "";
+	var _g = 0;
+	var _g1 = unfilteredResult.split("\n");
+	while(_g < _g1.length) {
+		var line = _g1[_g];
+		++_g;
+		if(line == "└─── Closure") {
+			continue;
+		}
+		filtered += line.substring(spacingBetweenNodes - 1) + "\n";
+	}
+	return "\nEquation\n" + filtered;
+};
+geometry_math_EquationParser.prefixFA = function(pArray) {
+	var prefix = "";
+	var _g = 0;
+	var _g1 = geometry_math_EquationParser.l;
+	while(_g < _g1) {
+		var i = _g++;
+		if(pArray[i] == 1) {
+			prefix += "│" + geometry_math_EquationParser.s.substring(1);
+		} else {
+			prefix += geometry_math_EquationParser.s;
+		}
+	}
+	return prefix;
+};
+geometry_math_EquationParser.pushIndex = function(pArray,i) {
+	var arr = pArray.slice();
+	arr[i + 1] = 1;
+	return arr;
+};
+geometry_math_EquationParser.getTree = function(root,prefix,level,last) {
+	geometry_math_EquationParser.l = level;
+	var t = last ? "└" : "├";
+	var c = "├";
+	var d = "───";
+	if(root == null) {
+		return "";
+	}
+	switch(root._hx_index) {
+	case 0:
+		var name = root.name;
+		var params = root.params;
+		var title = "" + geometry_math_EquationParser.prefixFA(prefix) + t + d + " Function\n";
+		title += geometry_math_EquationParser.getTree(geometry_math_Token.Variable(name),geometry_math_EquationParser.pushIndex(prefix,level),level + 1,false);
+		title += geometry_math_EquationParser.getTree(geometry_math_Token.Closure(params),prefix.slice(),level + 1,true);
+		return title;
+	case 1:
+		var body = root.elements;
+		if(body.length == 0) {
+			return "" + geometry_math_EquationParser.prefixFA(prefix) + t + d + " <empty closure>\n";
+		}
+		var strParts = ["" + geometry_math_EquationParser.prefixFA(prefix) + t + d + " Closure\n"];
+		var _g = [];
+		var _g1 = 0;
+		var _g2 = body.length - 1;
+		while(_g1 < _g2) {
+			var i = _g1++;
+			_g.push(geometry_math_EquationParser.getTree(body[i],geometry_math_EquationParser.pushIndex(prefix,level),level + 1,false));
+		}
+		var strParts1 = strParts.concat(_g);
+		strParts1.push(geometry_math_EquationParser.getTree(body[body.length - 1],prefix.slice(),level + 1,true));
+		return strParts1.join("");
+	case 2:
+		var name = root.name;
+		return "" + geometry_math_EquationParser.prefixFA(prefix) + t + d + " " + name + "\n";
+	case 3:
+		var num = root.num;
+		return "" + geometry_math_EquationParser.prefixFA(prefix) + t + d + " " + num + "\n";
+	case 4:
+		var value = root.s;
+		return "" + geometry_math_EquationParser.prefixFA(prefix) + t + d + " " + value + "\n";
+	}
+};
+var geometry_math_Token = $hxEnums["geometry.math.Token"] = { __ename__:"geometry.math.Token",__constructs__:null
+	,Function: ($_=function(name,params) { return {_hx_index:0,name:name,params:params,__enum__:"geometry.math.Token",toString:$estr}; },$_._hx_name="Function",$_.__params__ = ["name","params"],$_)
+	,Closure: ($_=function(elements) { return {_hx_index:1,elements:elements,__enum__:"geometry.math.Token",toString:$estr}; },$_._hx_name="Closure",$_.__params__ = ["elements"],$_)
+	,Variable: ($_=function(name) { return {_hx_index:2,name:name,__enum__:"geometry.math.Token",toString:$estr}; },$_._hx_name="Variable",$_.__params__ = ["name"],$_)
+	,Number: ($_=function(num) { return {_hx_index:3,num:num,__enum__:"geometry.math.Token",toString:$estr}; },$_._hx_name="Number",$_.__params__ = ["num"],$_)
+	,Sign: ($_=function(s) { return {_hx_index:4,s:s,__enum__:"geometry.math.Token",toString:$estr}; },$_._hx_name="Sign",$_.__params__ = ["s"],$_)
+};
+geometry_math_Token.__constructs__ = [geometry_math_Token.Function,geometry_math_Token.Closure,geometry_math_Token.Variable,geometry_math_Token.Number,geometry_math_Token.Sign];
 var geometry_shapes_Triangle = function(j1,j2,j3) {
 	this.type = 3;
 	geometry_basic_DraggableSprite.call(this);
@@ -23784,7 +24239,7 @@ var lime_utils_AssetCache = function() {
 	this.audio = new haxe_ds_StringMap();
 	this.font = new haxe_ds_StringMap();
 	this.image = new haxe_ds_StringMap();
-	this.version = 201603;
+	this.version = 51708;
 };
 $hxClasses["lime.utils.AssetCache"] = lime_utils_AssetCache;
 lime_utils_AssetCache.__name__ = "lime.utils.AssetCache";
@@ -79065,7 +79520,9 @@ TextTools.loremIpsumText = "\r\n\t\tLorem ipsum dolor sit amet, consectetur adip
 geometry_basic_Connection.all = [];
 geometry_basic_EllipseBase.all = [];
 geometry_basic_Joint.all = [];
-geometry_math_EquationInterpreter.signs = ["+","-","*","/","%","^"];
+geometry_math_EquationParser.signs = ["+","-","*","/","%","^","(",")","="];
+geometry_math_EquationParser.s = "";
+geometry_math_EquationParser.l = 0;
 haxe_Serializer.USE_CACHE = false;
 haxe_Serializer.USE_ENUM_INDEX = false;
 haxe_Serializer.BASE64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789%:";

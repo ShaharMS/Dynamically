@@ -1,247 +1,189 @@
 package geometry.math;
 
-using texter.general.TextTools;
-using vision.tools.MathTools;
-using StringTools;
-
+import geometry.math.EquationParser.Token;
+import vision.tools.MathTools.*;
 class EquationInterpreter {
-	public static var signs:Array<String> = ['+', '-', '*', '/', '%', '^'];
 
-	public static function lex(code:String):Array<Token> {
-		var tokens:Array<Token> = [];
+	public static function solveForVariable(tree:Array<Token>, variable:String, parameters:Map<String, Float>):Float {
 
-		var i = 0;
-		while (i < code.length) {
-			var char = code.charAt(i);
+		tree = reorderTree(tree);
 
-			if ("1234567890.".contains(char)) {
-				var num = char;
-				i++;
-				while (i < code.length && "1234567890.".contains(code.charAt(i))) {
-					num += code.charAt(i);
-					i++;
-				}
-				i--;
-				if (num == ".")
-					tokens.push(Sign("."))
-				else if (num.endsWith(".")) {
-					tokens.push(Number(num.replaceLast(".", "").parseFloat()));
-					tokens.push(Sign("."));
-				} else
-					tokens.push(Number(num.parseFloat()));
-			} else if (signs.contains(char)) {
-				var sign = char;
-				i++;
-				while (i < code.length && signs.contains(code.charAt(i))) {
-					sign += code.charAt(i);
-					i++;
-				}
-				i--;
-				tokens.push(Sign(sign));
-			} else if (~/[^+-.!@#$%%^&*0-9 \t\n\r;,\(\)\[\]\{\}]/.match(char)) {
-				var name = char;
-				i++;
-				while (i < code.length && ~/[^+-.!@#$%%^&*0-9 \t\n\r;,\(\)\[\]\{\}]/.match(code.charAt(i))) {
-					name += code.charAt(i);
-					i++;
-				}
-				i--;
-				tokens.push(Variable(name));
+		// Define the function for the given variable
+		var solveFor:(Float) -> Float = function(value:Float):Float {
+			parameters.set(variable, value);
+			return evaluateExpression(tree, parameters);
+		};
+
+		// Define the derivative of the function for the given variable
+		var slopeAt:(Float) -> Float = function(value:Float):Float {
+			var epsilon:Float = 1e-9;
+			var f0:Float = solveFor(value);
+			var f1:Float = solveFor(value + epsilon);
+			return (f1 - f0) / epsilon;
+		};
+
+		// Use the Newton-Raphson method to solve for the variable
+		var maxIterations = 100;
+		var tolerance = 1e-15;
+
+		// Guess the initial value, go from there
+		var variableValue = 1.1;
+
+		for (i in 0...maxIterations) {
+			var delta:Float = solveFor(variableValue) / slopeAt(variableValue);
+			variableValue -= delta;
+			trace('Guess $i: $variableValue');
+			if (Math.abs(delta) < tolerance) {
+				break;
 			}
-			i++;
 		}
 
-		tokens = mergeClosures(tokens);
-		tokens = mergeFunctions(tokens);
-		tokens = mergeOperations(tokens);
-
-		return tokens;
+		return variableValue;
 	}
 
-	public static function mergeClosures(pre:Array<Token>):Array<Token> {
-		if (pre == null)
-			return null;
-		if (pre.length == 1 && pre[0] == null)
-			return [null];
+	public static function simplify(exp:String, ?params:Map<String, Float>):Float {
+		return evaluateExpression(reorderTree(EquationParser.parse(exp)), if (params == null) [] else params);
+	}
 
-		var post:Array<Token> = [];
-
-		var i = 0;
-		while (i < pre.length) {
-			var token = pre[i];
-			switch token {
-				case Sign("("):
-					{
-						var expressionBody:Array<Token> = [];
-						var expressionStack = 1; // Open and close the block on the correct curly bracket
-						while (i + 1 < pre.length) {
-							var lookahead = pre[i + 1];
-							if (Type.enumEq(lookahead, Sign("("))) {
-								expressionStack++;
-								expressionBody.push(lookahead);
-							} else if (Type.enumEq(lookahead, Sign(")"))) {
-								expressionStack--;
-								if (expressionStack == 0)
-									break;
-								expressionBody.push(lookahead);
-							} else
-								expressionBody.push(lookahead);
-							i++;
-						}
-						// Throw error for unclosed expressions;
-						if (i + 1 == pre.length) {
-							throw 'Equation contains unclosed parentheses';
-						}
-						post.push(Closure(mergeClosures(expressionBody))); // The check performed above includes unmerged closures inside the outer parentheses. These unmerged closures should be merged
-						i++;
+	public static function evaluateExpression(tree:Array<Token>, parameters:Map<String, Float>):Float {
+		var stack:Array<Float> = [];
+		for (token in tree) {
+			switch (token) {
+				case Function(name, params):
+					// Evaluate the function and push the result onto the stack
+					var args:Array<Float> = [];
+					for (param in params) {
+						args.push(evaluateExpression([param], parameters));
 					}
-
-				case Closure(parts):
-					post.push(Closure(mergeClosures(parts)));
-				case _:
-					post.push(token);
-			}
-			i++;
-		}
-
-		return post;
-	}
-
-	public static function mergeFunctions(pre:Array<Token>):Array<Token> {
-		if (pre == null)
-			return null;
-		if (pre.length == 1 && pre[0] == null)
-			return [null];
-
-		var post:Array<Token> = [];
-
-		var i = 0;
-		while (i < pre.length) {
-			var token = pre[i];
-			switch token {
+					var result:Float = evaluateFunction(name, args);
+					stack.push(result);
+				case Closure(elements):
+					// Evaluate the closure and push the result onto the stack
+					var result:Float = evaluateExpression(elements, parameters);
+					stack.push(result);
 				case Variable(name):
-					{
-						if (i + 1 >= pre.length)
-							post.push(token);
-						else if (pre[i + 1].getName() == "Closure") {
-							post.push(Function(name, pre[i + 1].getParameters()[0]));
-							i++;
-						} else
-							post.push(token);
+					// Get the value of the variable from the parameters map and push it onto the stack
+					var value:Float = parameters.get(name);
+					stack.push(value);
+				case Number(num):
+					// Push the number onto the stack
+					stack.push(num);
+				case Sign(s):
+					// Handle different mathematical operations
+					switch (s) {
+						case "+":
+							var b:Float = stack.pop();
+							var a:Float = stack.pop();
+							stack.push(a + b);
+						case "-":
+							var b:Float = stack.pop();
+							var a:Float = stack.pop();
+							stack.push(a - b);
+						case "*":
+							var b:Float = stack.pop();
+							var a:Float = stack.pop();
+							stack.push(a * b);
+						case "/":
+							var b:Float = stack.pop();
+							var a:Float = stack.pop();
+							stack.push(a / b);
+						case "^":
+							var exponent:Float = stack.pop();
+							var base:Float = stack.pop();
+							stack.push(Math.pow(base, exponent));
 					}
-				case _:
-					post.push(token);
-					i++;
 			}
 		}
 
-		return post;
+		return stack.pop();
 	}
 
-	public static function mergeOperations(pre:Array<Token>):Array<Token> {
-		if (pre == null)
-			return null;
-		if (pre.length == 1 && pre[0] == null)
-			return [null];
+	public static function evaluateFunction(name:String, args:Array<Float>):Float {
+		switch (name) {
+			case "sin":  return sin(args[0]);
+			case "sind": return sind(args[0]);
+			case "cos":  return cos(args[0]);
+			case "cosd": return cosd(args[0]);
+			case "tan":  return tan(args[0]);
+			case "tand": return tand(args[0]);
+			case "cot":  return cotan(args[0]);
+			case "cotd": return cotand(args[0]);
+			case "sec":  return sec(args[0]);
+			case "secd": return secd(args[0]);
+			case "csc":  return cosec(args[0]);
+			case "cscd": return cosecd(args[0]);
+			case "sqrt": return sqrt(args[0]);
+			case "abs":  return abs(args[0]);
+				// Add more function evaluations as needed
+		}
 
+		// Default case: unsupported function
+		trace("Unsupported function: " + name);
+		return 0.0;
+	}
+
+	/**
+		Shifts everything onto one side
+
+		And
+
+		Turns
+		```
+		Closure
+  ├─── <operand>
+  ├─── <sign>
+  └─── <operand>
+		```
+		into:
+		```
+		Closure
+  ├─── <operand>
+  ├─── <operand>
+  └─── <sign>
+		```
+	**/
+	public static function reorderTree(tree:Array<Token>):Array<Token> {
+		
+		var pos = 0;
+		for (token in tree) {
+			if (token.equals(Sign("="))) break;
+			pos++;
+		}
+
+		if (pos != tree.length) tree = tree.slice(0, pos).concat([Sign("-")]).concat(tree.slice(pos + 1));
+		trace(EquationParser.prettyPrint(tree));
+		return reorder(tree);
+	}
+
+
+	public static function reorder(pre:Array<Token>):Array<Token> {
 		var post:Array<Token> = [];
 
-		// E
-		// M/D
-		// A/S
+
 
 		var i = 0;
 		while (i < pre.length) {
 			var token = pre[i];
 			switch token {
-				case Sign(s):
-					{
-						if (i + 1 >= pre.length)
-							throw "Operator at the end of equation/parentheses";
-						if (s == "^") {
-							var lhs = post.pop();
-							var rhs = pre[i + 1];
-							post.push(Closure([lhs, token, rhs]));
-							i++;
-						} else
-							post.push(token);
+				case Closure(elements): {
+					if (elements.length == 3 && elements[1].getName() == "Sign") {
+						post.push(Closure([
+							if (elements[0].getName() == "Closure") Closure(reorder(elements[0].getParameters()[0])) else elements[0],
+							if (elements[2].getName() == "Closure") Closure(reorder(elements[2].getParameters()[0])) else elements[2], 
+							elements[1]]));
 					}
-				case Closure(elements):
-					post.push(Closure(mergeOperations(elements)));
-				case Function(name, params):
-					post.push(Function(name, mergeOperations(params)));
-				case _:
-					post.push(token);
+					else post.push(Closure(reorder(elements)));
+				}
+				case Function(name, params): post.push(Function(name, reorder(params)));
+				case _: post.push(token);
 			}
 			i++;
 		}
 
-		pre = post.copy();
-		post = [];
-
-		var i = 0;
-		while (i < pre.length) {
-			var token = pre[i];
-			switch token {
-				case Sign(s):
-					{
-						if (i + 1 >= pre.length)
-							throw "Operator at the end of equation/parentheses";
-						if (s == "*" || s == "/") {
-							var lhs = post.pop();
-							var rhs = pre[i + 1];
-							post.push(Closure([lhs, token, rhs]));
-							i++;
-						} else
-							post.push(token);
-					}
-				case Closure(elements):
-					post.push(Closure(mergeOperations(elements)));
-				case Function(name, params):
-					post.push(Function(name, mergeOperations(params)));
-				case _:
-					post.push(token);
-			}
-			i++;
-		}
-
-		pre = post.copy();
-		post = [];
-
-		var i = 0;
-		while (i < pre.length) {
-			var token = pre[i];
-			switch token {
-				case Sign(s):
-					{
-						if (i + 1 >= pre.length)
-							throw "Operator at the end of equation/parentheses";
-						if (s == "+" || s == "-") {
-							var lhs = post.pop();
-							var rhs = pre[i + 1];
-							post.push(Closure([lhs, token, rhs]));
-							i++;
-						} else
-							post.push(token);
-					}
-				case Closure(elements):
-					post.push(Closure(mergeOperations(elements)));
-				case Function(name, params):
-					post.push(Function(name, mergeOperations(params)));
-				case _:
-					post.push(token);
-			}
-			i++;
+		if (post.length == 3 && post[1].getName() == "Sign") {
+			post = [post[0], post[2], post[1]];
 		}
 
 		return post;
 	}
-}
-
-enum Token {
-	Function(name:String, params:Array<Token>);
-	Closure(elements:Array<Token>);
-	Variable(name:String);
-	Number(num:Float);
-	Sign(s:String);
 }
