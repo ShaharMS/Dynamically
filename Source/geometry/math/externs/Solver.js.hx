@@ -4,13 +4,12 @@ package geometry.math.externs;
 extern class Solver {
 
 
-    static function solve(equation:String, variable:String):Array<Symbol>;
+    static function solve(equation:String, variable:String):Solution;
+
+    @:overload(function(equation:String, variable:String):Solution {})
+    static function solveEquations(equations:Array<String>):Solution;
 }
 
-
-extern class Symbol implements Dynamic {
-    
-
-    function toString():String;
-    function isConstant():Bool;
+typedef Solution = {
+    toString:Void -> String
 }

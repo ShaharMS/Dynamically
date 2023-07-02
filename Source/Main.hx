@@ -1,5 +1,6 @@
 package;
 
+import geometry.math.externs.Solver;
 import geometry.math.EquationInterpreter;
 import js.Syntax;
 import js.html.XMLHttpRequest;
@@ -14,6 +15,8 @@ import openfl.events.KeyboardEvent;
 import openfl.events.Event;
 import openfl.text.TextField;
 import openfl.display.Sprite;
+
+using StringTools;
 
 class Main extends Sprite
 {
@@ -30,11 +33,13 @@ class Main extends Sprite
 
 		script.onload = function () {
 			var arr = geometry.math.externs.Solver.solve("x^2 = 5*x*sin(pi/6)", "x");
-			trace(arr, arr.toString());
-			Syntax.code("console.log({0}.prototype)", arr.slice(1));
-			var ta = [for (s in arr) s.toString()];
-			trace(ta);
-			trace([for (s in ta) EquationInterpreter.simplify(s)]);
+			var arr2 = arr.toString().replace("[", "").replace("]", "").split(",").map(s -> EquationInterpreter.simplify(s));
+			trace(arr2);
+			trace(Solver.solveEquations(["x = y + 4", "y = z - 6", "z = x + y"]).toString());
+			Syntax.code("console.log(Object.getOwnPropertyNames({0}))", arr);
+			//var ta = [for (s in arr) s.toString()];
+			//trace(ta);
+			//trace([for (s in ta) EquationInterpreter.simplify(s)]);
 
 			Browser.document.addEventListener("contextmenu", function(event) {
 				event.preventDefault(); // Prevent the default context menu
